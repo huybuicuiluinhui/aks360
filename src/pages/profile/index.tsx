@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import Images from "../../static";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/authContext";
+import QRCode from "react-qr-code";
 interface IITemSetting {
   id: number;
   name: string;
@@ -10,6 +12,7 @@ interface IITemSetting {
 }
 const Profile = () => {
   const navigate = useNavigate();
+  const { user, setUser } = useAuth();
   const [dataSetting, setDataSetting] = useState<IITemSetting[]>([
     {
       id: 1,
@@ -20,35 +23,44 @@ const Profile = () => {
     {
       id: 2,
       name: " Đơn hàng",
-      img: Images.iconOrder,
+      img: Images.iconOrder2,
       title: "Tất cả đơn",
-      screen: "/address",
+      screen: "/order",
     },
     {
       id: 3,
       name: " Cài đặt địa chỉ",
       img: Images.iconAdr,
+      screen: "/address",
     },
     {
       id: 4,
       name: " Nhắn tin hỗ trợ",
       img: Images.iconComment,
+      screen: "",
     },
   ]);
   return (
     <div className="w-full h-full  bg-bg  ">
       {/* Header */}
-      <div className="flex items-center justify-between bg-gradient-to-r from-[#098B8B] to-[#0DB2A8] px-3  pt-[32px] pb-20 relative">
-        <div className="flex gap-3 items-center">
-          <img
-            src={Images.iconAvatar}
-            alt=""
-            className="w-[60px] h-[60px] object-contain rounded-full"
-          />
-          <div className="flex flex-col h-[60px] justify-around">
-            <p className="text-white text-xl font-normal">Xin chào</p>
-            <p className="text-white text-2xl font-semibold">Bé Đậu</p>
+      <div className="flex items-center justify-between bg-gradient-to-r from-[#16A244] via-30% to-[#2BE318] px-3  pt-[32px] pb-20 relative">
+        <div className="flex justify-between items-center w-full">
+          <div className="flex gap-3 items-center">
+            <img
+              src={Images.iconAvatar}
+              alt=""
+              className="w-[60px] h-[60px] object-contain rounded-full"
+            />
+            <div className="flex flex-col h-[60px] justify-around">
+              <p className="text-white text-xl font-normal">Xin chào,</p>
+              <p className="text-white text-2xl font-semibold">{user?.name}</p>
+            </div>
           </div>
+          <img
+            src={Images.iconHeader}
+            alt=""
+            className="w-[68px] h-[21px] object-contain"
+          />
         </div>
         {/* menu */}
         <div className="bg-white shadow-[0_3px_10px_rgb(0,0,0,0.2)] rounded-[14px]   absolute top-[70%] w-[90%] left-[5%]">
@@ -60,13 +72,15 @@ const Profile = () => {
               <img
                 src={Images.iconDiamond}
                 alt=""
-                className="w-[20px] h-[20px] object-contain "
+                className="w-[20px] h-[20px] object-contain  "
               />
-              <p className="text-main text-sm font-medium">0</p>
+              <p className="text-main text-sm font-medium">
+                {!!user && user.rewardPoint}
+              </p>
               <img
                 src={Images.iconArrRight}
                 alt=""
-                className="w-[10px] h-[16px] object-contain"
+                className="w-[10px] h-[16px] object-contain "
               />
             </div>
           </div>
@@ -77,13 +91,13 @@ const Profile = () => {
             }}
           >
             <div className="  flex   items-center gap-3 pl-3 ">
-              <div className=" bg-[#B2F1EE] rounded-full p-[12px] flex flex-col items-center   w-fit ">
-                <img
-                  src={Images.iconGift}
-                  alt=""
-                  className="w-[16px] h-[16px] object-contain 0"
-                />
-              </div>
+              {/* <div className=" bg-[#B2F1EE] rounded-full p-[12px] flex flex-col items-center   w-fit "> */}
+              <img
+                src={Images.iconGift}
+                alt=""
+                className="w-[38px] h-[38px] object-contain 0"
+              />
+              {/* </div> */}
               <p className="line-clamp-2 text-center text-main text-sm font-medium ">
                 Ưu đãi
               </p>
@@ -132,7 +146,7 @@ const Profile = () => {
           })}
       </div>
       {/*Qr code */}
-      <p className="text-center text-xs font-normal text-[#A4A4A4]">
+      <p className="text-center text-xs font-normal text-[#A4A4A4] mt-4 ">
         QR code này sử dụng cho việc nhân viên của shop quét
       </p>
       <img
@@ -141,14 +155,24 @@ const Profile = () => {
         className="w-[60px] h-[60px] rounded-full object-cover mx-auto my-5"
       />
       <p className="text-main text-sm font-medium text-center mb-5">
-        SĐT khách hàng: 0333.000.111
+        SĐT khách hàng: {user?.contactNumber}
       </p>
-      <div className="relative w-fit h-fit ">
-        <img
+      <div className="relative w-full h-fit flex flex-col justify-center  ">
+        {/* <img
           src={Images.qrcode}
           alt=""
           className="w-[50%] h-auto  mx-auto block object-contain"
-        />
+        /> */}
+        {!!user?.contactNumber && (
+          <QRCode
+            size={256}
+            // style={{ height: "auto", maxWidth: "100%", width: "100%" }}
+            value={user?.contactNumber}
+            className="w-[50%] h-auto  mx-auto block object-contain b"
+            viewBox={`0 0 256 256`}
+          />
+        )}
+
         <img
           src={Images.iconAvatar}
           alt=""

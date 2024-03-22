@@ -36,6 +36,25 @@ import iconArrBottom from "./icons/iconArrBottom.png";
 import iconSwitch from "./icons/iconSwitch.png";
 import iconFilter from "./icons/iconFilter.png";
 import iconShowmore from "./icons/iconShowmore.png";
+import iconMes from "./icons/iconMes.png";
+import iconBestical from "./icons/iconBestical.png";
+import icon29 from "./icons/icon29.png";
+import icon292 from "./icons/icon292.png";
+import iconShop2 from "./icons/iconShop2.png";
+import iconShop3 from "./icons/iconShop3.png";
+import iconBike from "./icons/iconBike.png";
+import iconBim from "./icons/iconBim.png";
+import iconHeader from "./icons/iconHeader.png";
+import iconQr from "./icons/iconQr.png";
+import iconOrder2 from "./icons/iconOrder2.png";
+import iconHomeNotChoose from "./icons/iconHomeNotChoose.png";
+import iconProfileChoose from "./icons/iconProfileChoose.png";
+import iconStar2 from "./icons/iconStar2.png";
+import iconNoti from "./icons/iconNoti.png";
+import iconMore from "./icons/iconMore.png";
+import imgTestNoti from "./icons/imgTestNoti.png";
+import iconForDot from "./icons/iconForDot.png";
+import logoBaTot from "./icons/logoBaTot.png";
 const Images = {
   iconHome,
   icon24h,
@@ -76,5 +95,24 @@ const Images = {
   iconSwitch,
   iconFilter,
   iconShowmore,
+  iconMes,
+  iconBestical,
+  icon29,
+  icon292,
+  iconShop2,
+  iconShop3,
+  iconBike,
+  iconBim,
+  iconQr,
+  iconHeader,
+  iconOrder2,
+  iconHomeNotChoose,
+  iconProfileChoose,
+  iconStar2,
+  iconNoti,
+  imgTestNoti,
+  iconMore,
+  iconForDot,
+  logoBaTot,
 };
 export default Images;

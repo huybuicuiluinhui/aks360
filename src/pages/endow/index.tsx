@@ -1,7 +1,8 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import Header from "../../component/header";
 import AllTab from "./allTab";
 import ForMe from "./forMe";
+import Images from "../../static";
 
 const Endow = () => {
   const tabs = [
@@ -23,8 +24,9 @@ const Endow = () => {
     });
     setChoose(index);
   };
+
   return (
-    <div className="w-full">
+    <div className="w-full bg-bg">
       <Header title="Ưu đãi" />
 
       <div className="w-full flex  ">
@@ -33,15 +35,20 @@ const Endow = () => {
             return (
               <div
                 key={item.id}
-                className="w-[50%] h-full  flex flex-col items-center justify-center pt-2  border-b-2 pb-1"
+                className="w-[50%] h-full  flex flex-col items-center justify-center pt-2  border-b-4 pb-1"
                 onClick={() => {
                   handleTabClick(index);
                 }}
                 style={{
-                  borderColor: index === choose ? "#0CA8A1" : "#fff",
+                  borderColor: index === choose ? "#198303" : "#fff",
                 }}
               >
-                <p className=" text-[17px]  text-[#0CA8A1] font-semibold ">
+                <p
+                  className=" text-[17px]   font-semibold "
+                  style={{
+                    color: index === choose ? "#198303" : "#0CA8A1",
+                  }}
+                >
                   {item.title}
                 </p>
               </div>

@@ -4,7 +4,7 @@ import Images from "../../static";
 
 const Individual = () => {
   return (
-    <div className="w-full h-full bg-[#fbfbfb]">
+    <div className="w-full h-screen bg-[#fbfbfb]">
       <Header title="Cá nhân" />
       <div className="w-full h-full">
         <div className="flex items-center gap-2 rounded-md shadow-[0_3px_10px_rgb(0,0,0,0.2)] mx-3 my-2 py-2 px-2">

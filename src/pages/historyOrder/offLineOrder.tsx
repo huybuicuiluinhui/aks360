@@ -1,7 +1,67 @@
-import React from "react";
+import React, { useState } from "react";
 import Images from "../../static";
+import { formatNumber } from "../../utils";
+import { useQuery } from "@tanstack/react-query";
+import orderApis from "../../apis/order.apis";
+import moment from "moment";
 
 const OffLineOrder = () => {
+  const [data, setData] = useState([
+    {
+      id: 1,
+      code: "09876543323272",
+      price: 890000,
+      date: "20:00 - 23/12/2023",
+      product: [
+        {
+          name: "Lineabon D3K2",
+          sku: "23323",
+          amount: 2,
+          priceProduct: 295000,
+          img: Images.imgTest,
+        },
+        {
+          name: "Bestical Sinh học",
+          sku: "32555",
+          amount: 1,
+          priceProduct: 195000,
+          img: Images.iconBestical,
+        },
+      ],
+    },
+    {
+      id: 2,
+      code: "099988664426423",
+      price: 790000,
+      date: "20:00 - 23/12/2023",
+      product: [
+        {
+          name: "Lineabon D3K2",
+          sku: "23323",
+          amount: 1,
+          priceProduct: 295000,
+          img: Images.imgTest,
+        },
+        {
+          name: "Bestical Sinh học",
+          sku: "32555",
+          amount: 2,
+          priceProduct: 195000,
+          img: Images.iconBestical,
+        },
+      ],
+    },
+  ]);
+  const {
+    data: listOrderOFf,
+    isFetching: isFetching,
+    refetch,
+  } = useQuery({
+    queryKey: ["listOrderOFf"],
+    queryFn: () => orderApis.getOrderOff(),
+  });
+  const dataOrderOff = listOrderOFf?.data.data;
+  console.log("listOrderOFf", dataOrderOff);
   return (
     <div className="w-full h-full">
       <div className="flex justify-between items-center px-3 mt-3">
@@ -19,9 +79,9 @@ const OffLineOrder = () => {
           className="w-[17px] h-[16px] object-contain"
         />
       </div>
-      {Array(4)
-        .fill(0)
-        .map((i, e) => {
+      {!!dataOrderOff &&
+        !!dataOrderOff.length &&
+        dataOrderOff.map((i, e) => {
           return (
             <div className="px-3 w-full mt-3" key={e}>
               <div className="flex gap-1 w-full ">
@@ -30,54 +90,52 @@ const OffLineOrder = () => {
                   alt=""
                   className="w-[13px] h-[16px] object-contain"
                 />
-                <div className="w-full mr-[10%]">
+                <div className="w-full mr-[10%] gap-2">
                   <p className="text-sm text-[#666666] font-normal">
-                    Đơn hàng : 098123786781263
+                    Đơn hàng : {i.code}
                   </p>
                   <p className="text-sm text-[#FF5E3A] font-semibold">
-                    (đ) 899.000
+                    (đ) {formatNumber(i.totalPayment)}
                   </p>
-                  <p className="text-sm text-[#666666] font-light">
-                    20:00 - 23/12/2023
+                  <p className="text-sm text-[#666666] font-light mb-2">
+                    {moment(i.createdDate).format("hh:mm:ss DD/MM/YYYY")}
                   </p>
-                  {Array(3)
-                    .fill(0)
-                    .map((item, index) => {
-                      return (
-                        <div
-                          className="flex border-dashed border rounded-md border-[#F9A671] p-1 pr-2 mb-2"
-                          key={index}
-                        >
-                          <img
-                            src={Images.imgTest}
-                            alt=""
-                            className="w-[62px] h-[65px] object-cover rounded-[10px]"
-                          />
-                          <div className="ml-2 w-full">
-                            <div className="flex items-center justify-between">
-                              <p className="text-[#45579A] text-[10px] font-medium">
-                                Lineabon D3K2{" "}
-                              </p>
-                              <p className="text-[#EE0D79] text-xs font-semibold">
-                                295.000 đ
-                              </p>
-                            </div>
-                            <p className="text-[10px] text-[#828BAC] font-normal ">
-                              SKU : 232323
+                  {i.invoiceDetails.map((item, index) => {
+                    return (
+                      <div
+                        className="flex border-dashed border rounded-md border-[#F9A671] p-1 pr-2 mb-2"
+                        key={index}
+                      >
+                        <img
+                          src={Images.imgTest}
+                          alt=""
+                          className="w-[62px] h-[65px] object-cover rounded-[10px]"
+                        />
+                        <div className="ml-2 w-full flex flex-col gap-[1px]">
+                          <div className="flex items-center justify-between">
+                            <p className="text-[#373943] text-[10px] font-medium line-clamp-1 flex-1">
+                              {item?.productName}{" "}
                             </p>
-                            <p className="text-[10px] text-[#828BAC]  font-normal">
-                              Số lượng : 2 sản phẩm
-                            </p>
-                            <p className="text-[10px] text-[#45579A] font-normal">
-                              Tổng tiền :{" "}
-                              <span className="text-[#EE0D79] font-normal">
-                                590.000 đ
-                              </span>
+                            <p className="text-[#EE0D79] text-xs font-semibold ml-2">
+                              {formatNumber(item?.price)} đ
                             </p>
                           </div>
+                          <p className="text-[10px] text-[#828BAC] font-normal ">
+                            SKU : {item?.tradeMarkId}
+                          </p>
+                          <p className="text-[10px] text-[#828BAC]  font-normal">
+                            Số lượng : {item?.quantity} sản phẩm
+                          </p>
+                          <p className="text-[10px] text-[#373943] font-medium">
+                            Tổng tiền :{" "}
+                            <span className="text-[#EE0D79] font-normal">
+                              {formatNumber(item.subTotal)} đ
+                            </span>
+                          </p>
                         </div>
-                      );
-                    })}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>

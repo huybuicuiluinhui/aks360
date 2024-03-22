@@ -1,19 +1,61 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Header from "../../component/header";
 import ItemCart from "./itemCart";
 import { formatNumber } from "../../utils";
+import { useQuery } from "@tanstack/react-query";
+import cartApis from "../../apis/cart.apis";
+import { useAuth } from "../../context/authContext";
+import addressApi from "../../apis/address.apis";
+import { IAddress } from "../../types/address.type";
+import { useNavigate } from "react-router-dom";
 
 const Cart = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [totalProduct, setTotalProduct] = useState<number>();
+  const [defaultAddress, setDefaultAddress] = useState<IAddress | undefined>();
+
+  const {
+    data: listProduct,
+    isFetching: isFetchingListProduct,
+    refetch,
+  } = useQuery({
+    queryKey: ["dataCategory"],
+    queryFn: () => cartApis.getListProductInCart(),
+  });
+  const { data: listAdr, isFetching: isFetching } = useQuery({
+    queryKey: ["dataAdr"],
+    queryFn: () => addressApi.getListAdr(),
+  });
+  const listDataAdr = listAdr?.data.data;
+  const handleRefetch = () => {
+    refetch();
+  };
+  const dataCart = listProduct?.data.data;
+  useEffect(() => {
+    if (dataCart) {
+      const total = dataCart.reduce((acc, item) => {
+        return acc + item.total_money;
+      }, 0);
+      setTotalProduct(total);
+    }
+  }, [dataCart]);
+  useEffect(() => {
+    if (listDataAdr) {
+      const check = listDataAdr?.find((address) => address.is_default === "1");
+      setDefaultAddress(check);
+    }
+  }, [listDataAdr]);
   return (
     <div className="w-full h-full">
       <Header title="Giỏ hàng" />
-      <div className="px-[12px]">
-        {Array(10)
-          .fill(0)
-          .map((i, e) => {
+      <div className="px-[12px] mb-40">
+        {!!dataCart &&
+          !!dataCart.length &&
+          dataCart.map((i, e) => {
             return (
               <div className="" key={e}>
-                <ItemCart />
+                <ItemCart item={i} handleRefetch={handleRefetch} />
               </div>
             );
           })}
@@ -24,18 +66,15 @@ const Cart = () => {
           <div className="h-[1px] bg-[#0CA29C] w-full" />
           <div className="flex justify-between items-center w-full pl-3">
             <p className="text-sm  font-medium text-[#263238] ">Giao tới</p>
-            <div
-              className="px-3 py-1"
-              // onClick={() => navigate(path.listAddress)}
-            >
+            <div className="px-3 py-1" onClick={() => navigate("/address")}>
               <p className="text-sm  font-bold text-[#0CA29C]">Chọn địa chỉ</p>
             </div>
           </div>
           {/* {_.isEmpty(defaultAddress) && (
-              <div className="pl-2 text-black text-sm font-medium">
-                Hãy chọn địa chỉ giao hàng mặc định.
-              </div>
-            )} */}
+                <div className="pl-2 text-black text-sm font-medium">
+                  Hãy chọn địa chỉ giao hàng mặc định.
+                </div>
+              )} */}
           <div className="flex flex-row gap-2  px-3">
             <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
               <g clipPath="url(#clip0_795_4118)">
@@ -50,9 +89,7 @@ const Cart = () => {
                 </clipPath>
               </defs>
             </svg>
-            <div className="text-sm    text-[#828282] mt-px ">
-              r32r234234v23 23
-            </div>
+            <div className="text-sm    text-[#828282] mt-px ">{user?.name}</div>
           </div>
           <div className="flex gap-2  px-3">
             <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
@@ -65,7 +102,9 @@ const Cart = () => {
                 fill="#828282"
               />
             </svg>
-            <div className="text-sm  text-[#828282] ">sdf asdfadsf ads</div>
+            <div className="text-sm  text-[#828282] ">
+              {defaultAddress ? defaultAddress.full_address : ""}
+            </div>
           </div>
           <div className="flex flex-row gap-2  px-3">
             <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
@@ -74,7 +113,7 @@ const Cart = () => {
                 fill="#828282"
               />
             </svg>
-            <p className="text-sm  text-[#828282]">0987654321</p>
+            <p className="text-sm  text-[#828282]">{user?.contactNumber}</p>
           </div>
         </div>
         <div className="mt-3">
@@ -86,7 +125,7 @@ const Cart = () => {
                 Tổng tiền hàng
               </p>
               <div className="text-xs  font-bold  text-[#d60013] ">
-                {formatNumber(10000000)}đ{" "}
+                {!!totalProduct && formatNumber(totalProduct)}đ{" "}
               </div>
             </div>
             <div className="flex items-center justify-between">

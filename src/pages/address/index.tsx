@@ -1,21 +1,65 @@
-import React from "react";
+import React, { useState } from "react";
 import Header from "../../component/header";
 import { useNavigate } from "react-router-dom";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import addressApi from "../../apis/address.apis";
+import { useAuth } from "../../context/authContext";
+import { toast } from "react-toastify";
 
 const Address = () => {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const {
+    data: listAdr,
+    isFetching: isFetching,
+    refetch,
+  } = useQuery({
+    queryKey: ["dataAdr"],
+    queryFn: () => addressApi.getListAdr(),
+  });
+  const deleteMutation = useMutation({
+    mutationFn: addressApi.deleteAdr,
+    onSuccess: (data) => {
+      refetch();
+      console.log(data.data);
+      toast.success(data.data.msg);
+    },
+    onError: (err) => {
+      console.log("lõi", err);
+    },
+  });
+  const defaultAdr = useMutation({
+    mutationFn: addressApi.defaultAdr,
+    onSuccess: (data) => {
+      toast.success(data.data.msg);
+      queryClient.invalidateQueries({
+        predicate: (query) => query.queryKey[0] === "dataAdr",
+      });
+    },
+    onError: (err) => {
+      console.log("lõi", err);
+    },
+  });
+  const handleDeleteItem = (id: number) => {
+    deleteMutation.mutate(id);
+  };
+  const handleDefaultAdr = (id: number) => {
+    defaultAdr.mutate({ id });
+  };
+  const dataAdr = listAdr?.data.data;
   return (
     <div className="w-full h-full">
       <Header title="Cài đặt địa chỉ" />
 
       <div className="w-full px-3 ">
-        {Array(3)
-          .fill(0)
-          .map((item, index) => {
+        {!!dataAdr &&
+          !!dataAdr.length &&
+          dataAdr.map((item, index) => {
             return (
               <div
                 className="py-3 pl-3 border-b-4 border-b-[#e8e8e8]"
-                key={item.id}
+                key={index}
               >
                 <div className="flex items-start">
                   <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
@@ -29,39 +73,37 @@ const Address = () => {
                     />
                   </svg>
                   <p className="text-sm  ml-1 flex-1 text-[#263238]">
-                    21 3123 1231 2312 3123 12312 3123 12
+                    {item?.full_address}
                   </p>
                   <div
                     className="text-sm  px-3 text-[#01B2FF]"
-                    //   onClick={() =>
-                    //     navigate(path.addAdress, {
-                    //       state: {
-                    //         item: item,
-                    //         type: 2,
-                    //       },
-                    //     })
-                    //   }
+                    onClick={() =>
+                      navigate("/updateAdr", {
+                        state: item,
+                      })
+                    }
                   >
                     Sửa
                   </div>
                 </div>
                 <div className="flex items-center justify-between my-2 pl-5">
                   <p className="text-sm  text-[#828282] w-full line-clamp-1">
-                    đây là têm
+                    {user?.name}
                   </p>
                   <div
                     className="text-sm  px-3 text-[#ff3c3c]"
-                    //   onClick={() => {
-                    //     setItemChoose(item);
-                    //     setShowModalDelete(true);
-                    //   }}
+                    onClick={() => {
+                      handleDeleteItem(item.id);
+                    }}
                   >
                     Xoá
                   </div>
                 </div>
                 <div className="flex items-center justify-between pl-5 pr-3">
-                  <p className="text-sm   text-[#828282]">0987654321</p>
-                  {index % 2 === 0 ? (
+                  <p className="text-sm   text-[#828282]">
+                    {user?.contactNumber}
+                  </p>
+                  {Number(item.is_default) === 1 ? (
                     <div
                       className="flex items-center justify-center py-1 px-3 rounded-lg"
                       style={{ backgroundColor: "#01B2FF" }}
@@ -71,7 +113,7 @@ const Address = () => {
                   ) : (
                     <div
                       className="bg-[#0DAEA5] flex items-center justify-center py-1 px-3 rounded-lg"
-                      //   onClick={() => handleSetDefault(item)}
+                      onClick={() => handleDefaultAdr(item.id)}
                     >
                       <p className="text-xs  text-white ">Thiết lập mặc định</p>
                     </div>
