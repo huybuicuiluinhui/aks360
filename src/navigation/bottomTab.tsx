@@ -3,7 +3,10 @@ import React, { FC, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 import Images from "../static";
 import { useAuth } from "../context/authContext";
-import { toast } from "react-toastify";
+import ModalLogin from "../component/customShowModal";
+interface IRefModalMarket {
+  setVisible: React.Dispatch<React.SetStateAction<boolean>>;
+}
 const tabs = {
   "/": {
     label: "Trang chủ",
@@ -33,7 +36,7 @@ export const CustomNavigationBotom: FC = () => {
     setActiveTab(location.pathname);
     return BOTTOM_NAVIGATION_PAGES.includes(location.pathname);
   }, [location]);
-
+  const refModalLogin = React.useRef<IRefModalMarket>(null);
   if (BottomNav) {
     return (
       <div
@@ -56,8 +59,16 @@ export const CustomNavigationBotom: FC = () => {
                 key={index}
                 className="flex flex-col items-center flex-1 justify-center"
                 onClick={() => {
-                  setActiveTab(path);
-                  navigate(path);
+                  console.log(isLoggedIn);
+                  if (
+                    tabs[path].label !== "Trang chủ" &&
+                    isLoggedIn === false
+                  ) {
+                    refModalLogin.current?.setVisible(true);
+                  } else {
+                    setActiveTab(path);
+                    navigate(path);
+                  }
                 }}
               >
                 {tabs[path].label === "Tư vấn" ? (
@@ -79,7 +90,7 @@ export const CustomNavigationBotom: FC = () => {
                   className={`text-align text-[12px]  ${
                     path === activeTab
                       ? "font-bold text-[#3669C9]"
-                      : "font-medium text-[#0C1A30]"
+                      : "font-normal text-[#0C1A30]"
                   }`}
                 >
                   {tabs[path].label}
@@ -88,6 +99,7 @@ export const CustomNavigationBotom: FC = () => {
             ))}
           </div>
         </div>
+        <ModalLogin ref={refModalLogin} />
       </div>
     );
   }

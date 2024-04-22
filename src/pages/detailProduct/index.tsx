@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Header from "../../component/header";
 import Images from "../../static";
 import { formatNumber } from "../../utils";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import productApi from "../../apis/product.apis";
 import { useLocation, useParams } from "react-router-dom";
 import { API_URL_IMAGE } from "../../utils/contanst";
@@ -13,6 +13,26 @@ const DetailProduct = () => {
     queryKey: ["dataDetailProduct"],
     queryFn: () => productApi.getDetailProduct(Number(id)),
   });
+  const { data: dataView } = useQuery({
+    queryKey: ["dataView"],
+    queryFn: () => productApi.getViewProduct(Number(id)),
+  });
+  const view = dataView?.data.data;
+  const addViewMutation = useMutation({
+    mutationFn: productApi.addViewProduct,
+    onSuccess: (data) => {},
+    onError: (err) => {
+      console.log("lõi", err);
+    },
+  });
+  useEffect(() => {
+    if (id) {
+      addViewMutation.mutate({
+        id_product: Number(id),
+      });
+    }
+  }, [id]);
+
   const detailProduct = dataDetailProduct?.data.data;
   return (
     <div className="w-full h-full bg-bg">
@@ -51,7 +71,7 @@ const DetailProduct = () => {
                   {formatNumber(detailProduct.price)} đ
                 </p>
               </div>
-              <p className="text-main text-xs font-normal">86 lượt xem</p>
+              <p className="text-main text-xs font-normal">{view} lượt xem</p>
             </div>
           </div>
           <div className=" w-full  px-[12px] py-3">

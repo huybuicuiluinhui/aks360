@@ -4,16 +4,19 @@ import SliderHome from "../../component/sliderHome/SliderHome";
 import ProductSlider from "../../component/listProduct";
 import { Link, useNavigate } from "react-router-dom";
 import BottomSheet from "../../component/bottomSheet/BottomSheet";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import productApi from "../../apis/product.apis";
 import { IProduct } from "../../types/product.type";
 import notificationApis from "../../apis/notification.apis";
 import { API_URL_IMAGE } from "../../utils/contanst";
 import moment from "moment";
 import { useAuth } from "../../context/authContext";
-import authApis from "../../apis/auth.apis";
 import { toast } from "react-toastify";
 import userApis from "../../apis/user.apis";
+import cartApis from "../../apis/cart.apis";
+import { formatNumber } from "../../utils";
+import ModalLogin from "../../component/customShowModal";
+import bannerApis from "../../apis/banner.apis";
 interface IDataMenu {
   name: string;
   img: string;
@@ -27,14 +30,16 @@ interface IDataProduct {
   oldPrice: number;
   image: string;
 }
+interface IRefModalMarket {
+  setVisible: React.Dispatch<React.SetStateAction<boolean>>;
+}
 const Home = () => {
   const navigate = useNavigate();
-  const { isLoggedIn, setIsLoggedIn, user, setUser } = useAuth();
-  console.log(user);
+  const { isLoggedIn, user, setUser } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
-  const [isOpenLogin, setIsOpenLogin] = useState(false);
-  const [phone, setPhone] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
+  const [detailProduct, setDetailProduct] = useState<IProduct>();
+  const [amount, setAmount] = useState<number>(1);
+  const refModalLogin = React.useRef<IRefModalMarket>(null);
   const dataMenu: IDataMenu[] = [
     { id: 1, name: "Tích điểm", img: Images.iconStar, screen: "/qrCode" },
     { id: 2, name: "Mua sắm", img: Images.iconLockPassword, screen: "/shop" },
@@ -43,7 +48,7 @@ const Home = () => {
       id: 4,
       name: "Quyền lợi \n thành viên",
       img: Images.iconCrown,
-      screen: "/shop",
+      screen: "/phattrien",
     },
   ];
   const dataTitle: IDataMenu[] = [
@@ -67,57 +72,36 @@ const Home = () => {
       screen: "",
     },
   ];
-  const loginMutation = useMutation({
-    mutationFn: authApis.login,
-    onSuccess: (data) => {
-      if (data.data.status && data.data.data.access_token) {
-        console.log(data.data);
-        localStorage.setItem("access_token", data.data.data.access_token);
-        setIsOpenLogin(false);
-        setIsLoggedIn(true);
-        window.location.reload();
-      } else {
-      }
-    },
-    onError: (err) => {
-      console.log("lõi", err);
-    },
-  });
-  const { data: dataWithType1, isFetching: isFetchingWithType1 } = useQuery({
+
+  const { data: dataWithType1 } = useQuery({
     queryKey: ["dataProductWithType1"],
     queryFn: () => productApi.getListProductWithType(1),
   });
-  const { data: dataWithType2, isFetching: isFetchingWithType2 } = useQuery({
+  const { data: dataWithType2 } = useQuery({
     queryKey: ["dataProductWithType2"],
     queryFn: () => productApi.getListProductWithType(2),
   });
-  const { data: dataNoti, isFetching: isFetchNoti } = useQuery({
+  const { data: dataNoti } = useQuery({
     queryKey: ["dataNotiHome"],
     queryFn: () => notificationApis.getListNotiHome(),
   });
-  const {
-    data: dataInfo,
-    isFetching: isFetchInfo,
-    isError,
-    error,
-  } = useQuery({
+  const { data: dataInfo, isError } = useQuery({
     queryKey: ["dataInfo"],
     queryFn: () => userApis.getInfoUser(),
   });
   useEffect(() => {
     if (isError && !!dataInfo && dataInfo.data.code === 400) {
       localStorage.removeItem("access_token");
-      setIsOpenLogin(true);
+      refModalLogin.current?.setVisible(true);
     }
   }, [isError, dataInfo]);
-
   const listDataType1 = dataWithType1?.data.data;
   const listDataType2 = dataWithType2?.data.data;
   const listDataNotiHome = dataNoti?.data.data;
   const dataUser = dataInfo?.data.data;
   useEffect(() => {
     if (!!dataUser) {
-      setUser(dataUser[0]);
+      setUser(dataUser);
     }
   }, [dataUser]);
 
@@ -125,28 +109,82 @@ const Home = () => {
     const phoneNumber = "0388343864";
     window.open(`tel:${phoneNumber}`);
   };
+  const updateCartMutation = useMutation({
+    mutationFn: cartApis.updateCart,
+    onSuccess: (data) => {
+      toast.success(data.data.message);
+      setIsOpen(false);
+    },
+    onError: (err) => {
+      console.log("lõi", err);
+    },
+  });
 
-  const handleLogin = () => {
-    loginMutation.mutate({
-      phone,
-      password,
+  const handleReduce = () => {
+    setAmount((amount) => {
+      if (amount > 1) {
+        return amount - 1;
+      } else {
+        return amount;
+      }
     });
   };
+  const handleIncrease = () => {
+    setAmount((amount) => {
+      if (amount >= Number(detailProduct?.quantity)) {
+        return amount;
+      } else {
+        return amount + 1;
+      }
+    });
+  };
+  const handleAddToCart = () => {
+    if (!!isLoggedIn) {
+      updateCartMutation.mutate({
+        product_id: Number(detailProduct?.id),
+        quantity: amount,
+        type: 1,
+      });
+    } else {
+      refModalLogin.current?.setVisible(true);
+      // navigate("/");
+    }
+  };
+  const handleBuyNow = () => {
+    if (!!isLoggedIn) {
+      updateCartMutation.mutate(
+        {
+          product_id: Number(detailProduct?.id),
+          quantity: amount,
+          type: 1,
+        },
+        {
+          onSuccess: () => {
+            navigate("/cart");
+          },
+        }
+      );
+    } else {
+      refModalLogin.current?.setVisible(true);
+      // toast.warning("Bạn cần đăng nhập để tiếp tục mua hàng");
+      // navigate("/");
+    }
+  };
   return (
-    <div className="w-full h-full  bg-bg  ">
+    <div className="w-full h-full  bg-bg  overflow-x-hidden relative">
       {/* Header */}
-      <div className="flex items-center justify-between bg-gradient-to-r from-[#50B152]   via-95% to-[#61E35E] px-4  pt-[32px] pb-20 relative">
+      <div className="w-full flex items-center justify-between bg-gradient-to-r from-[#50B152]   via-95% to-[#61E35E] px-4  pt-[32px] pb-20 relative">
         {isLoggedIn && dataUser ? (
           <div className="flex gap-3 items-center">
             <img
-              src={Images.iconAvatar}
+              src={API_URL_IMAGE + dataUser.avavtar}
               alt=""
               className="w-[60px] h-[60px] object-contain rounded-full"
             />
             <div className="flex flex-col h-[60px] justify-around">
               <div className="flex gap-2 items-center">
                 <p className="text-[#E8FDFF] text-xl font-medium">
-                  {dataUser[0]?.name}
+                  {dataUser?.name}
                 </p>
                 <img
                   src={Images.iconStar2}
@@ -163,7 +201,7 @@ const Home = () => {
             <div
               className="bg-[#0CA29C] flex justify-between self-start px-3 rounded-sm py-1 "
               onClick={() => {
-                setIsOpenLogin(true);
+                refModalLogin.current?.setVisible(true);
               }}
             >
               <p className="text-white font-semibold text-[15px]">Đăng nhập</p>
@@ -177,7 +215,11 @@ const Home = () => {
           <div
             className=" relative "
             onClick={() => {
-              navigate("/notification");
+              if (!!isLoggedIn) {
+                navigate("/notification");
+              } else {
+                refModalLogin.current?.setVisible(true);
+              }
             }}
           >
             <img
@@ -192,7 +234,11 @@ const Home = () => {
           <div
             className=" "
             onClick={() => {
-              navigate("/cart");
+              if (!!isLoggedIn) {
+                navigate("/cart");
+              } else {
+                refModalLogin.current?.setVisible(true);
+              }
             }}
           >
             <img
@@ -214,7 +260,7 @@ const Home = () => {
                   className="w-[20px] h-[20px] object-contain "
                 />
                 <p className="text-main text-sm font-medium ">
-                  {!!user && user.rewardPoint}
+                  {!!user && user.point}
                 </p>
                 <img
                   src={Images.iconArrRight}
@@ -226,7 +272,7 @@ const Home = () => {
               <div
                 className="flex gap-1 items-center "
                 onClick={() => {
-                  setIsOpenLogin(true);
+                  refModalLogin.current?.setVisible(true);
                 }}
               >
                 <img
@@ -248,10 +294,16 @@ const Home = () => {
               return (
                 <div
                   onClick={() => {
-                    if (item.screen && !!isLoggedIn) {
+                    if (
+                      item.screen &&
+                      !!isLoggedIn &&
+                      item.screen !== "/phattrien"
+                    ) {
                       navigate(item?.screen);
+                    } else if (item.screen === "/phattrien") {
+                      toast.warning("Tính năng đang được phát triển");
                     } else {
-                      setIsOpenLogin(true);
+                      refModalLogin.current?.setVisible(true);
                     }
                   }}
                   key={index}
@@ -286,7 +338,7 @@ const Home = () => {
                   if (item?.screen && !!isLoggedIn) {
                     navigate(item.screen ? item.screen : "");
                   } else if (!isLoggedIn && item.screen) {
-                    setIsOpenLogin(true);
+                    refModalLogin.current?.setVisible(true);
                   } else {
                     handleClick();
                   }
@@ -307,14 +359,7 @@ const Home = () => {
             );
           })}
         </div>
-        {/* <div className="flex items-center justify-between py-2 ">
-          <p className="text-lg font-semibold text-main">Sự kiện vòng quay</p>
-          <img
-            src={Images.iconShare}
-            alt=""
-            className="w-[28px] h-[24px] object-contain"
-          />
-        </div> */}
+
         <SliderHome />
         {/* Sản phẩm nổi bật */}
         {!!listDataType1 && (
@@ -323,8 +368,12 @@ const Home = () => {
               <p className="text-base font-semibold text-main">
                 Sản phẩm nổi bật
               </p>
-              <p className="text-[#57C556] font-normal text-sm italic">
-                {" "}
+              <p
+                className="text-[#57C556] font-normal text-sm italic"
+                onClick={() => {
+                  navigate("/listProductWithType1");
+                }}
+              >
                 Tất cả
               </p>
             </div>
@@ -332,6 +381,8 @@ const Home = () => {
               products={listDataType1}
               isOpen={isOpen}
               setIsOpen={setIsOpen}
+              detailProduct={detailProduct}
+              setDetailProduct={setDetailProduct}
             />
           </>
         )}
@@ -341,8 +392,12 @@ const Home = () => {
               <p className="text-lg font-semibold text-main">
                 Sản phẩm bán chạy
               </p>
-              <p className="text-[#57C556] font-normal text-sm italic">
-                {" "}
+              <p
+                className="text-[#57C556] font-normal text-sm italic"
+                onClick={() => {
+                  navigate("/listProductWithType2");
+                }}
+              >
                 Tất cả
               </p>
             </div>
@@ -350,6 +405,8 @@ const Home = () => {
               products={listDataType2}
               isOpen={isOpen}
               setIsOpen={setIsOpen}
+              detailProduct={detailProduct}
+              setDetailProduct={setDetailProduct}
             />{" "}
           </>
         )}
@@ -400,91 +457,67 @@ const Home = () => {
         />
       </div>
       <BottomSheet isOpen={isOpen} setIsOpen={setIsOpen}>
-        <div className="flex flex-col">
+        <div className="flex flex-col w-full overflow-hidden">
           <div className="flex items-center gap-3">
             <img
-              src={Images.imgTest}
+              src={API_URL_IMAGE + detailProduct?.image}
               alt=""
               className="w-[68px] h-[68px] object-cover"
             />
             <div className="gap-2">
               <p className="text-sm text-[#28293D] font-medium">
-                Thực phẩm chức năng D3K2 100% tinh khiết với Vitamin MK7
+                {detailProduct?.name}
               </p>
               <p className="text-[#F10000] text-[19px] font-semibold">
-                295.000đ{" "}
+                {formatNumber(Number(detailProduct?.price))} đ
               </p>
             </div>
           </div>
           <div className="w-full h-[2px] bg-[#EAEAEA] my-2" />
-          <p className="text-[#B7B7B7] text-xs font-medium mb-2">
-            Chọn option ( 1 option )
-          </p>
-          <div className="border-[#D9D9D9] border px-3 py-2  self-start">
-            <p className="text-black text-xs font-normal">Loại 300ml</p>
-          </div>
           <div className=" flex justify-between mt-2">
             <p className="text-[#B7B7B7] text-xs font-medium">Số lượng</p>
             <div className="flex  border border-[#0CA29C]">
-              <div className="bg-[#C7FFFD] w-[50px] h-[36px] flex justify-center items-center">
+              <div
+                className="bg-[#C7FFFD] w-[50px] h-[36px] flex justify-center items-center"
+                onClick={handleReduce}
+              >
                 -
               </div>
               <div className="bg-[#fff] w-[60px] h-[36px] flex justify-center items-center border-l border-r border-l-[#0CA29C] border-r-[#0CA29C]">
-                1
+                {amount}
               </div>
-              <div className="bg-[#C7FFFD] w-[50px] h-[36px] flex justify-center items-center">
+              <div
+                className="bg-[#C7FFFD] w-[50px] h-[36px] flex justify-center items-center"
+                onClick={handleIncrease}
+              >
                 +
               </div>
             </div>
           </div>
           <div className="flex justify-around mt-5 mb-[80px]">
-            <div className="w-[46%] border border-[#0CA29C] rounded-[3px] flex justify-center items-center">
+            <div
+              className="w-[46%] border border-[#0CA29C] rounded-[3px] flex justify-center items-center"
+              onClick={() => {
+                handleAddToCart();
+              }}
+            >
               <p className="py-2 text-sm font-medium text-[#0CA29C]">
                 Thêm vào giỏ hàng
               </p>
             </div>
-            <div className="w-[46%] bg-[#0CA29C] border border-[#0CA29C] rounded-[3px] flex justify-center items-center">
+            <div
+              className="w-[46%] bg-[#0CA29C] border border-[#0CA29C] rounded-[3px] flex justify-center items-center"
+              onClick={() => {
+                handleBuyNow();
+              }}
+            >
               <p className="py-2 text-sm font-medium text-[#fff]">Mua ngay</p>
             </div>
           </div>
         </div>
       </BottomSheet>
-      <BottomSheet isOpen={isOpenLogin} setIsOpen={setIsOpenLogin}>
-        <div className="flex flex-col mb-[80px] gap-4">
-          <img
-            src={Images.logoBaTot}
-            className="w-[100px] h-[100px] object-contain self-center"
-          />
-          <p className="text-[#09121F] text-xl font-semibold text-center">
-            Tính năng cần kích hoạt tài khoản
-          </p>
-          <p className="text-center text-xs text-[#06070C] font-normal">
-            Cho phép Hệ thống sữa 3 Tốt xác minh số điện thoại để có thể sử dụng
-            đầy đủ tính năng của app. Điều này giúp tăng trải nghiệm của quý
-            khách hàng
-          </p>
-          <input
-            type="text"
-            placeholder="Nhập số điện thoại..."
-            value={phone}
-            onChange={(e: any) => setPhone(e?.target?.value)}
-            className="rounded-[5px] border  border-[#dedede] px-2 py-[4px] w-[90%] self-center placeholder:text-[#333] text-[#333] text-[15px] font-medium"
-          />
-          <input
-            type="password"
-            placeholder="Nhập mật khẩu..."
-            value={password}
-            onChange={(e: any) => setPassword(e?.target?.value)}
-            className="rounded-[5px] border  border-[#dedede] px-2 py-[4px] w-[90%] self-center placeholder:text-[#333] text-[#333] text-[15px] font-medium"
-          />
-          <div
-            className="bg-[#01A850] rounded-[15px] py-[10px] w-[90%] self-center"
-            onClick={handleLogin}
-          >
-            <p className="text-white text-xs text-center">ĐĂNG NHẬP</p>
-          </div>
-        </div>
-      </BottomSheet>
+
+      <ModalLogin ref={refModalLogin} />
     </div>
   );
 };

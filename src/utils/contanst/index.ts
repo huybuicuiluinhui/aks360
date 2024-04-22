@@ -1,2 +1,2 @@
-export const API_URL = "http://adviiser360.outtech.io.vn/api";
-export const API_URL_IMAGE = "http://adviiser360.outtech.io.vn/";
+export const API_URL = "http://nhanvien3tot.outtech.io.vn/api";
+export const API_URL_IMAGE = "http://nhanvien3tot.outtech.io.vn/";

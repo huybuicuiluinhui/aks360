@@ -1,13 +1,18 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import Header from "../../component/header";
 import ListOrder from "./listOrder";
+import orderApis from "../../apis/order.apis";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import ListOrder2 from "./listOrder2";
+import ListOrder3 from "./listOrder3";
+import ListOrder4 from "./listOrder4";
 
 const Order = () => {
   const tabs = [
-    { id: 1, title: "Đã xác nhận" },
+    { id: 1, title: "Chưa xác nhận" },
     {
       id: 2,
-      title: "Chưa xác nhận",
+      title: "Đã xác nhận",
     },
     {
       id: 3,
@@ -30,6 +35,21 @@ const Order = () => {
     });
     setChoose(index);
   };
+
+  // const { data: dataTab2 } = useQuery({
+  //   queryKey: ["dataTab2"],
+  //   queryFn: () => orderApis.getFollowOrder(1),
+  // });
+
+  // const { data: dataTab3 } = useQuery({
+  //   queryKey: ["dataTab3"],
+  //   queryFn: () => orderApis.getFollowOrder(2),
+  // });
+
+  // const { data: dataTab4 } = useQuery({
+  //   queryKey: ["dataTab4"],
+  //   queryFn: () => orderApis.getFollowOrder(3),
+  // });
   return (
     <div className="w-full bg-bg">
       <Header title="Đơn hàng" />
@@ -78,7 +98,7 @@ const Order = () => {
             flex: `0 0 ${WIDTH_WINDOW}px`,
           }}
         >
-          <ListOrder />
+          <ListOrder2 />
         </div>
         <div
           className="no-scrollbar h-full "
@@ -86,7 +106,7 @@ const Order = () => {
             flex: `0 0 ${WIDTH_WINDOW}px`,
           }}
         >
-          <ListOrder />
+          <ListOrder3 />
         </div>
         <div
           className="no-scrollbar h-full "
@@ -94,7 +114,7 @@ const Order = () => {
             flex: `0 0 ${WIDTH_WINDOW}px`,
           }}
         >
-          <ListOrder />
+          <ListOrder4 />
         </div>
       </div>
     </div>

@@ -55,6 +55,7 @@ import iconMore from "./icons/iconMore.png";
 import imgTestNoti from "./icons/imgTestNoti.png";
 import iconForDot from "./icons/iconForDot.png";
 import logoBaTot from "./icons/logoBaTot.png";
+import iconClose from "./icons/iconClose.png";
 const Images = {
   iconHome,
   icon24h,
@@ -114,5 +115,6 @@ const Images = {
   iconMore,
   iconForDot,
   logoBaTot,
+  iconClose,
 };
 export default Images;

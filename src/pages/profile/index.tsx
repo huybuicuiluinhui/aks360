@@ -3,6 +3,7 @@ import Images from "../../static";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/authContext";
 import QRCode from "react-qr-code";
+import { API_URL_IMAGE } from "../../utils/contanst";
 interface IITemSetting {
   id: number;
   name: string;
@@ -47,7 +48,7 @@ const Profile = () => {
         <div className="flex justify-between items-center w-full">
           <div className="flex gap-3 items-center">
             <img
-              src={Images.iconAvatar}
+              src={API_URL_IMAGE + user?.avavtar}
               alt=""
               className="w-[60px] h-[60px] object-contain rounded-full"
             />
@@ -75,7 +76,7 @@ const Profile = () => {
                 className="w-[20px] h-[20px] object-contain  "
               />
               <p className="text-main text-sm font-medium">
-                {!!user && user.rewardPoint}
+                {!!user && user.point}
               </p>
               <img
                 src={Images.iconArrRight}
@@ -146,61 +147,66 @@ const Profile = () => {
           })}
       </div>
       {/*Qr code */}
-      <p className="text-center text-xs font-normal text-[#A4A4A4] mt-4 ">
-        QR code này sử dụng cho việc nhân viên của shop quét
-      </p>
-      <img
-        src={Images.iconAvatar}
-        alt=""
-        className="w-[60px] h-[60px] rounded-full object-cover mx-auto my-5"
-      />
-      <p className="text-main text-sm font-medium text-center mb-5">
-        SĐT khách hàng: {user?.contactNumber}
-      </p>
-      <div className="relative w-full h-fit flex flex-col justify-center  ">
-        {/* <img
+      {!!user && (
+        <>
+          <p className="text-center text-xs font-normal text-[#A4A4A4] mt-4 ">
+            QR code này sử dụng cho việc nhân viên của shop quét
+          </p>
+          <img
+            src={API_URL_IMAGE + user?.avavtar}
+            alt=""
+            className="w-[60px] h-[60px] rounded-full object-cover mx-auto my-5"
+          />
+          <p className="text-main text-sm font-medium text-center mb-5">
+            SĐT khách hàng: {user?.phone_kiotviet}
+          </p>
+          <div className="relative w-full h-fit flex flex-col justify-center  ">
+            {/* <img
           src={Images.qrcode}
           alt=""
           className="w-[50%] h-auto  mx-auto block object-contain"
         /> */}
-        {!!user?.contactNumber && (
-          <QRCode
-            size={256}
-            // style={{ height: "auto", maxWidth: "100%", width: "100%" }}
-            value={user?.contactNumber}
-            className="w-[50%] h-auto  mx-auto block object-contain b"
-            viewBox={`0 0 256 256`}
-          />
-        )}
+            {!!user?.phone_kiotviet && (
+              <QRCode
+                size={256}
+                // style={{ height: "auto", maxWidth: "100%", width: "100%" }}
+                value={user?.phone_kiotviet}
+                className="w-[50%] h-auto  mx-auto block object-contain b"
+                viewBox={`0 0 256 256`}
+              />
+            )}
 
-        <img
-          src={Images.iconAvatar}
-          alt=""
-          className="w-[45px] h-[45px] rounded-full object-cover mx-auto absolute top-1/2 left-1/2  -translate-y-1/2 -translate-x-1/2 "
-        />
-      </div>
-      <div className="flex mt-4 justify-around">
-        <div className="flex items-center gap-2 shadow-[0_3px_10px_rgb(0,0,0,0.2)]  rounded-[50px] px-[20px] py-3">
-          <img
-            src={Images.iconDownLoad}
-            alt=""
-            className="w-[24px] h-[24px] object-contain"
-          />
-          <p className="text-[#8F8C8C] text-xs font-normal">
-            Tải xuống QR Code
-          </p>
-        </div>
-        <div className="flex items-center gap-2 shadow-[0_3px_10px_rgb(0,0,0,0.2)]  rounded-[50px] px-[20px] py-3">
-          <img
-            src={Images.iconShare2}
-            alt=""
-            className="w-[24px] h-[24px] object-contain"
-          />
-          <p className="text-[#8F8C8C] text-xs font-normal">
-            Chia sẻ QR của bạn
-          </p>
-        </div>
-      </div>
+            <img
+              src={API_URL_IMAGE + user?.avavtar}
+              alt=""
+              className="w-[45px] h-[45px] rounded-full object-cover mx-auto absolute top-1/2 left-1/2  -translate-y-1/2 -translate-x-1/2 "
+            />
+          </div>
+          <div className="flex mt-4 justify-around">
+            <div className="flex items-center gap-2 shadow-[0_3px_10px_rgb(0,0,0,0.2)]  rounded-[50px] px-[20px] py-3">
+              <img
+                src={Images.iconDownLoad}
+                alt=""
+                className="w-[24px] h-[24px] object-contain"
+              />
+              <p className="text-[#8F8C8C] text-xs font-normal">
+                Tải xuống QR Code
+              </p>
+            </div>
+            <div className="flex items-center gap-2 shadow-[0_3px_10px_rgb(0,0,0,0.2)]  rounded-[50px] px-[20px] py-3">
+              <img
+                src={Images.iconShare2}
+                alt=""
+                className="w-[24px] h-[24px] object-contain"
+              />
+              <p className="text-[#8F8C8C] text-xs font-normal">
+                Chia sẻ QR của bạn
+              </p>
+            </div>
+          </div>
+        </>
+      )}
+
       <p className="text-xs font-light text-[#A4A4A4] text-center my-28  ">
         Sản phẩm được pháp triển bởi ASK360
       </p>

@@ -3,6 +3,9 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
 import Images from "../../static";
+import bannerApis from "../../apis/banner.apis";
+import { useQuery } from "@tanstack/react-query";
+import { API_URL_IMAGE } from "../../utils/contanst";
 
 const SliderHome = () => {
   const settings = {
@@ -15,28 +18,32 @@ const SliderHome = () => {
     autoplay: true,
     autoplaySpeed: 1000,
   };
-  const listBanner = [
-    Images.bannerTest,
-    Images.bannerTest,
-    Images.bannerTest,
-    Images.bannerTest,
-    Images.bannerTest,
-    Images.bannerTest,
-  ];
+
+  const { data: dataBanner } = useQuery({
+    queryKey: ["dataBanner"],
+    queryFn: () => bannerApis.getListBanner(),
+  });
+  const listBanner = dataBanner?.data.data;
+
   return (
     <div className="w-full flex ">
       <div className="w-full ">
         <Slider {...settings}>
-          {listBanner.map((item, index) => {
-            return (
-              <div
-                className="flex flex-col w-full items-center justify-center "
-                key={index}
-              >
-                <img src={item} className="w-full  object-cover mx-auto" />
-              </div>
-            );
-          })}
+          {!!listBanner &&
+            !!listBanner.length &&
+            listBanner.map((item, index) => {
+              return (
+                <div
+                  className="flex flex-col w-full items-center justify-center "
+                  key={index}
+                >
+                  <img
+                    src={API_URL_IMAGE + item.imgage}
+                    className="w-full  object-cover mx-auto"
+                  />
+                </div>
+              );
+            })}
         </Slider>
       </div>
     </div>

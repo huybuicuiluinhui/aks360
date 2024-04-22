@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -7,25 +7,23 @@ import Images from "../../static";
 import { useNavigate } from "react-router-dom";
 import { IProduct } from "../../types/product.type";
 import { API_URL_IMAGE } from "../../utils/contanst";
-
-// interface Product {
-//   id: number;
-//   name: string;
-//   image: string;
-//   price: number;
-//   oldPrice: number;
-// }
+import { useMutation } from "@tanstack/react-query";
+import productApi from "../../apis/product.apis";
 
 interface ProductSliderProps {
   products: IProduct[];
   isOpen: boolean;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  detailProduct: IProduct | undefined;
+  setDetailProduct: React.Dispatch<React.SetStateAction<IProduct | undefined>>;
 }
 
 const ProductSlider: React.FC<ProductSliderProps> = ({
   products,
   isOpen,
   setIsOpen,
+  detailProduct,
+  setDetailProduct,
 }) => {
   const settings = {
     dots: false,
@@ -35,9 +33,22 @@ const ProductSlider: React.FC<ProductSliderProps> = ({
     slidesToScroll: 1,
   };
   function randomTwoDigitNumber() {
-    return Math.floor(Math.random() * 90) + 10; // Tạo số ngẫu nhiên từ 10 đến 99
+    return Math.floor(Math.random() * 90) + 10;
   }
   const navigate = useNavigate();
+  const detailProductMutation = useMutation({
+    mutationFn: productApi.getDetailProduct,
+    onSuccess: (data) => {
+      setDetailProduct(data.data.data);
+      console.log(data);
+    },
+    onError: (err) => {
+      console.log("lõi", err);
+    },
+  });
+  const handleDetail = (id: number) => {
+    detailProductMutation.mutate(id);
+  };
   return (
     <Slider {...settings}>
       {products.map((product) => (
@@ -74,6 +85,7 @@ const ProductSlider: React.FC<ProductSliderProps> = ({
                 className="bg-[#198303]  p-[4px] rounded-full"
                 onClick={() => {
                   setIsOpen(!isOpen);
+                  handleDetail(product.id);
                 }}
               >
                 <img

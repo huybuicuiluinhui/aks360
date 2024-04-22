@@ -1,16 +1,16 @@
 export interface IUser {
-  branchId: number;
-  code: string;
-  contactNumber: string;
-  createdDate: string;
-  debt: number;
+  avavtar: string;
+  branch_kiotviet_id: number;
+  code_kiotviet_id: string;
+  created_at: string;
   id: number;
-  locationName: string;
-  modifiedDate: string;
   name: string;
-  organization: string;
-  retailerId: number;
-  rewardPoint: number;
-  type: number;
-  wardName: string;
+  phone_kiotviet: string;
+  point: number;
+  point_kiotviet: number;
+  retailer_kiotviet_id: number;
+  status: number;
+  updated_at: string;
+  user_id: number;
+  user_kiotviet_id: number;
 }

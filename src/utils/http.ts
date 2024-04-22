@@ -97,15 +97,14 @@ class Http {
         console.log("response", response.data.status);
         if (response.data.code === 400) {
           localStorage.removeItem("access_token");
-          toast.warning("Bạn cần đăng nhập lai");
+          toast.warning("Bạn cần đăng nhập lại");
           window.location.href = "/"; // Chuyển hướng về trang chủ
         } else if (response.data.status === "Authorization Token not found") {
-          toast.warning("Bạn cần đăng nhập lai");
+          toast.warning("Bạn cần đăng nhập lại");
         }
         return response;
       },
       (error: AxiosError) => {
-        console.log(":agugu");
         if (error.response) {
           const { status, data }: any = error.response;
 
@@ -113,13 +112,13 @@ class Http {
             localStorage.removeItem("access_token");
             console.error("Unauthorized request. Redirecting to login page...");
           }
-          toast.warning("Bạn cần đăng nhập lai");
+          toast.warning("Bạn cần đăng nhập lại");
           // Xử lý mã lỗi khác
           if (
             status === 400 &&
             data?.message === "Bạn đã hết hạn truy cập mời đăng nhập lại"
           ) {
-            toast.warning("Bạn cần đăng nhập lai");
+            toast.warning("Bạn cần đăng nhập lại");
             // Xử lý yêu cầu đăng nhập lại
             // Ví dụ: Hiển thị thông báo modal
             // showModal("Session Expired", "Your session has expired. Please log in again.");
