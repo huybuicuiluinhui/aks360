@@ -6,17 +6,17 @@ import { useQuery } from "@tanstack/react-query";
 import orderApis from "../../apis/order.apis";
 import { IOrderFollow } from "../../types/order.type";
 
-const ListOrder = () => {
+const ListOrder4 = () => {
   const [loadMore, setLoadMore] = useState<boolean>(false);
   const [page, setPage] = useState<number>(1);
   const [lastPage, setLastPage] = useState<number>(1);
   const [listData, setListData] = useState<IOrderFollow[]>([]);
   const elementRef = useRef<HTMLDivElement>(null);
   const { data } = useQuery({
-    queryKey: ["dataTab1"],
+    queryKey: ["dataTab4"],
     queryFn: async () => {
       try {
-        const response = await orderApis.getFollowOrder(0, 1);
+        const response = await orderApis.getFollowOrder(3, 1);
         if (response && response.data && response.data.data) {
           const responseData = response.data.data;
           if (
@@ -46,7 +46,7 @@ const ListOrder = () => {
       setPage(nextPage);
       setLoadMore(true);
       try {
-        const response = await orderApis.getFollowOrder(0, nextPage);
+        const response = await orderApis.getFollowOrder(3, nextPage);
         if (response && response.data && response.data.data) {
           const responseData = response.data.data;
           if (
@@ -185,9 +185,9 @@ const ListOrder = () => {
       </div>
       <div ref={elementRef} className="text-center">
         {loadMore && <div className="text-center">Loading...</div>}
-      </div>
+      </div>{" "}
     </div>
   );
 };
 
-export default ListOrder;
+export default ListOrder4;

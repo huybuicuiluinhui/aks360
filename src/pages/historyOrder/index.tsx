@@ -25,7 +25,7 @@ const HistoryOrder = () => {
     setChoose(index);
   };
   return (
-    <div className="w-full h-full bg-bg">
+    <div className="w-full h-full bg-bg min-h-screen">
       <Header title="Lịch sử mua hàng" />
       <div className="w-full h-full">
         <div className="w-full flex  ">

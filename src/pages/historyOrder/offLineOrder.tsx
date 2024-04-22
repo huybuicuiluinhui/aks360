@@ -6,62 +6,12 @@ import orderApis from "../../apis/order.apis";
 import moment from "moment";
 
 const OffLineOrder = () => {
-  const [data, setData] = useState([
-    {
-      id: 1,
-      code: "09876543323272",
-      price: 890000,
-      date: "20:00 - 23/12/2023",
-      product: [
-        {
-          name: "Lineabon D3K2",
-          sku: "23323",
-          amount: 2,
-          priceProduct: 295000,
-          img: Images.imgTest,
-        },
-        {
-          name: "Bestical Sinh học",
-          sku: "32555",
-          amount: 1,
-          priceProduct: 195000,
-          img: Images.iconBestical,
-        },
-      ],
-    },
-    {
-      id: 2,
-      code: "099988664426423",
-      price: 790000,
-      date: "20:00 - 23/12/2023",
-      product: [
-        {
-          name: "Lineabon D3K2",
-          sku: "23323",
-          amount: 1,
-          priceProduct: 295000,
-          img: Images.imgTest,
-        },
-        {
-          name: "Bestical Sinh học",
-          sku: "32555",
-          amount: 2,
-          priceProduct: 195000,
-          img: Images.iconBestical,
-        },
-      ],
-    },
-  ]);
-  const {
-    data: listOrderOFf,
-    isFetching: isFetching,
-    refetch,
-  } = useQuery({
+  const { data: listOrderOFf } = useQuery({
     queryKey: ["listOrderOFf"],
     queryFn: () => orderApis.getOrderOff(),
   });
+  console.log(listOrderOFf);
   const dataOrderOff = listOrderOFf?.data.data;
-  console.log("listOrderOFf", dataOrderOff);
   return (
     <div className="w-full h-full">
       <div className="flex justify-between items-center px-3 mt-3">

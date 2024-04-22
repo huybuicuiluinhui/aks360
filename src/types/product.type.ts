@@ -65,3 +65,26 @@ export interface IItemCart {
   updated_at: string;
   user_id: number;
 }
+export interface IItemProduct {
+  id: number;
+  image: string;
+  name: string;
+  price: number;
+  price_promotional: number;
+}
+export interface IResponsePageProduct {
+  current_page: number;
+  last_page: number;
+  data: IItemProduct[];
+  total: number;
+}
+export interface IBanner {
+  created_at: string;
+  id: number;
+  id_event: null;
+  imgage: string;
+  link_banner: string;
+  status: number;
+  type: number;
+  updated_at: string;
+}

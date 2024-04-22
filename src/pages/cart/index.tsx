@@ -2,24 +2,29 @@ import React, { useEffect, useState } from "react";
 import Header from "../../component/header";
 import ItemCart from "./itemCart";
 import { formatNumber } from "../../utils";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import cartApis from "../../apis/cart.apis";
 import { useAuth } from "../../context/authContext";
 import addressApi from "../../apis/address.apis";
 import { IAddress } from "../../types/address.type";
 import { useNavigate } from "react-router-dom";
+import BottomSheet from "../../component/bottomSheet/BottomSheet";
+import voucherApi from "../../apis/voucher.apis";
+import ItemMyVoucher from "../../component/itemMyVoucher";
+import orderApis from "../../apis/order.apis";
+import { toast } from "react-toastify";
 
 const Cart = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [totalProduct, setTotalProduct] = useState<number>();
   const [defaultAddress, setDefaultAddress] = useState<IAddress | undefined>();
-
-  const {
-    data: listProduct,
-    isFetching: isFetchingListProduct,
-    refetch,
-  } = useQuery({
+  const [isOpentVoucher, setIsOpenVoucher] = useState<boolean>(false);
+  const [pointAwarded, setPointAwarded] = useState<number>(0);
+  const [pointReduce, setPointReduce] = useState<number>(0);
+  const [idVoucher, setIdVoucher] = useState<number>(0);
+  const [selectedBranch, setSelectedBranch] = useState<number>(0);
+  const { data: listProduct, refetch } = useQuery({
     queryKey: ["dataCategory"],
     queryFn: () => cartApis.getListProductInCart(),
   });
@@ -27,11 +32,55 @@ const Cart = () => {
     queryKey: ["dataAdr"],
     queryFn: () => addressApi.getListAdr(),
   });
+  const { data: listMyVoucher } = useQuery({
+    queryKey: ["listMyVoucher"],
+    queryFn: () => voucherApi.getListMyVoucher(),
+  });
+  const { data: listBranch } = useQuery({
+    queryKey: ["listBranch"],
+    queryFn: () => orderApis.getListBranch(),
+  });
+  const checkPoint = useMutation({
+    mutationFn: orderApis.checkOrderPoint,
+    onSuccess: (data) => {
+      setPointAwarded(data.data.points_awarded);
+    },
+    onError: (err) => {
+      console.log("lõi", err);
+    },
+  });
+  const checkVoucher = useMutation({
+    mutationFn: orderApis.checkOrderVoucher,
+    onSuccess: (data) => {
+      setPointReduce(data.data.money_reduced_amount);
+    },
+    onError: (err) => {
+      console.log("lõi", err);
+    },
+  });
+  const paymentMutation = useMutation({
+    mutationFn: orderApis.paymentOrder,
+    onSuccess: (data) => {
+      toast.success(data.data.message);
+      navigate("/");
+    },
+    onError: (err) => {
+      console.log("lõi", err);
+    },
+  });
+
+  const dataMyVoucher = listMyVoucher?.data.data;
   const listDataAdr = listAdr?.data.data;
+  const dataCart = listProduct?.data.data;
+  const dataBranch = listBranch?.data.data;
+  const handleChooseVoucher = (id: number) => {
+    setIdVoucher(id);
+    checkVoucher.mutate(id);
+  };
+  console.log("dataMyVoucher", dataMyVoucher);
   const handleRefetch = () => {
     refetch();
   };
-  const dataCart = listProduct?.data.data;
   useEffect(() => {
     if (dataCart) {
       const total = dataCart.reduce((acc, item) => {
@@ -46,6 +95,36 @@ const Cart = () => {
       setDefaultAddress(check);
     }
   }, [listDataAdr]);
+  useEffect(() => {
+    if (totalProduct) {
+      checkPoint.mutate(totalProduct);
+    }
+  }, [totalProduct]);
+  const onSubmitBuy = () => {
+    if (
+      !!defaultAddress?.full_address &&
+      user?.name &&
+      user?.phone_kiotviet &&
+      selectedBranch &&
+      selectedBranch !== 0
+    ) {
+      paymentMutation.mutate({
+        address_user: defaultAddress?.full_address
+          ? defaultAddress?.full_address
+          : "",
+        voucher_id: idVoucher,
+        name_user: user ? user?.name : "",
+        phone_user: user ? user?.phone_kiotviet : "",
+        note: "",
+        branch_shop_id: selectedBranch,
+      });
+    } else {
+      toast.warning("Bạn cần nhập đầy đủ thông tin");
+    }
+  };
+  const handleSelectedBranhd = (event: any) => {
+    setSelectedBranch(event.target.value);
+  };
   return (
     <div className="w-full h-full">
       <Header title="Giỏ hàng" />
@@ -113,78 +192,170 @@ const Cart = () => {
                 fill="#828282"
               />
             </svg>
-            <p className="text-sm  text-[#828282]">{user?.contactNumber}</p>
+            <p className="text-sm  text-[#828282]">{user?.phone_kiotviet}</p>
           </div>
         </div>
-        <div className="mt-3">
-          <p className="text-[#0CA29C] text-sm font-bold ml-3">Thanh toán</p>
-          <div className="bg-[#0CA29C] w-full h-[1px] my-2" />
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center justify-between pt-2">
-              <p className="text-sm   text-[#333333] font-medium ">
-                Tổng tiền hàng
+        {!!dataCart && dataCart.length > 0 ? (
+          <>
+            <div className="mt-3">
+              <p className="text-[#0CA29C] text-sm font-bold ml-3">
+                Thanh toán
               </p>
-              <div className="text-xs  font-bold  text-[#d60013] ">
-                {!!totalProduct && formatNumber(totalProduct)}đ{" "}
+              <div className="bg-[#0CA29C] w-full h-[1px] my-2" />
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center justify-between pt-2">
+                  <p className="text-sm   text-[#333333] font-medium ">
+                    Tổng tiền hàng
+                  </p>
+                  <div className="text-xs  font-bold  text-[#d60013] ">
+                    {!!totalProduct && formatNumber(totalProduct)} đ
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <svg width="25" height="24" viewBox="0 0 25 24" fill="none">
+                      <path
+                        d="M12.0488 2.293C11.9561 2.2 11.8459 2.12624 11.7245 2.07596C11.6032 2.02568 11.4731 1.99986 11.3418 2H6.3418C6.21046 1.99986 6.08039 2.02568 5.95906 2.07596C5.83774 2.12624 5.72754 2.2 5.6348 2.293L2.6348 5.293C2.54176 5.38571 2.46797 5.4959 2.41768 5.61724C2.3674 5.73857 2.34161 5.86866 2.3418 6V11C2.3418 11.266 2.4468 11.52 2.6348 11.707L12.6348 21.707C12.7275 21.8002 12.8376 21.8741 12.9589 21.9246C13.0803 21.9751 13.2104 22.001 13.3418 22.001C13.4732 22.001 13.6033 21.9751 13.7247 21.9246C13.846 21.8741 13.9561 21.8002 14.0488 21.707L22.0488 13.707C22.1417 13.6142 22.2155 13.504 22.2658 13.3827C22.3161 13.2614 22.342 13.1313 22.342 13C22.342 12.8687 22.3161 12.7386 22.2658 12.6173C22.2155 12.496 22.1417 12.3858 22.0488 12.293L12.0488 2.293ZM13.3418 19.586L4.3418 10.586V6.414L6.7558 4H10.9278L19.9278 13L13.3418 19.586Z"
+                        fill="#F26091"
+                      />
+                      <path
+                        d="M8.69485 10C9.60446 10 10.3419 9.26261 10.3419 8.353C10.3419 7.44339 9.60446 6.706 8.69485 6.706C7.78524 6.706 7.04785 7.44339 7.04785 8.353C7.04785 9.26261 7.78524 10 8.69485 10Z"
+                        fill="#F26091"
+                      />
+                    </svg>
+                    <p className="text-sm  ml-1 text-[#333333]">Mã giảm giá</p>
+                  </div>
+                  <div className="flex items-center">
+                    <div
+                      className=" text-xs font-medium  text-[#828282]"
+                      onClick={() => {
+                        setIsOpenVoucher(true);
+                      }}
+                    >
+                      {!!pointReduce && pointReduce > 0 ? (
+                        <p>{formatNumber(pointReduce)} đ</p>
+                      ) : (
+                        <p>Chọn mã giảm giá</p>
+                      )}
+                    </div>
+                    <div className=" text-xs  font-medium ml-1 text-[#828282]">
+                      &#62;
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-medium text-[#333333]">
+                    Điểm thưởng tích được:
+                  </p>
+                  <p className="text-xs  font-bold text-[#d60013]">
+                    + {pointAwarded} đ
+                  </p>
+                </div>
               </div>
             </div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <svg width="25" height="24" viewBox="0 0 25 24" fill="none">
-                  <path
-                    d="M12.0488 2.293C11.9561 2.2 11.8459 2.12624 11.7245 2.07596C11.6032 2.02568 11.4731 1.99986 11.3418 2H6.3418C6.21046 1.99986 6.08039 2.02568 5.95906 2.07596C5.83774 2.12624 5.72754 2.2 5.6348 2.293L2.6348 5.293C2.54176 5.38571 2.46797 5.4959 2.41768 5.61724C2.3674 5.73857 2.34161 5.86866 2.3418 6V11C2.3418 11.266 2.4468 11.52 2.6348 11.707L12.6348 21.707C12.7275 21.8002 12.8376 21.8741 12.9589 21.9246C13.0803 21.9751 13.2104 22.001 13.3418 22.001C13.4732 22.001 13.6033 21.9751 13.7247 21.9246C13.846 21.8741 13.9561 21.8002 14.0488 21.707L22.0488 13.707C22.1417 13.6142 22.2155 13.504 22.2658 13.3827C22.3161 13.2614 22.342 13.1313 22.342 13C22.342 12.8687 22.3161 12.7386 22.2658 12.6173C22.2155 12.496 22.1417 12.3858 22.0488 12.293L12.0488 2.293ZM13.3418 19.586L4.3418 10.586V6.414L6.7558 4H10.9278L19.9278 13L13.3418 19.586Z"
-                    fill="#F26091"
-                  />
-                  <path
-                    d="M8.69485 10C9.60446 10 10.3419 9.26261 10.3419 8.353C10.3419 7.44339 9.60446 6.706 8.69485 6.706C7.78524 6.706 7.04785 7.44339 7.04785 8.353C7.04785 9.26261 7.78524 10 8.69485 10Z"
-                    fill="#F26091"
-                  />
-                </svg>
-                <p className="text-sm  ml-1 text-[#333333]">Mã giảm giá</p>
-              </div>
-              <div className="flex items-center">
-                <div className=" text-xs font-medium  text-[#828282]">
-                  Chọn mã giảm giá
-                </div>
-                <div className=" text-xs  font-medium ml-1 text-[#828282]">
-                  &#62;
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center justify-between">
-              <p className="text-sm font-medium text-[#333333]">
-                Điểm thưởng tích được:
+            <div className="mt-6">
+              <p className="text-[#0CA29C] text-sm font-bold ml-3">
+                Chọn chi nhánh
               </p>
-              <p className="text-xs  font-bold text-[#d60013]">+ 130đ</p>
+              <div className="bg-[#0CA29C] w-full h-[1px] my-2" />
+              <select
+                className=" w-[100%] border border-[#D9D9D9D9] rounded-md mt-3  py-2 px-4  items-center justify-between pe-9 block  border-gray-200  text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none  "
+                onChange={handleSelectedBranhd} // Sự kiện khi giá trị được chọn thay đổi
+                value={selectedBranch}
+              >
+                <option className="text-sm text-[#333333] font-normal">
+                  Chọn chi nhánh
+                </option>
+                {!!dataBranch &&
+                  dataBranch.length &&
+                  dataBranch?.map((item, index) => {
+                    return (
+                      <option
+                        value={item.branch_kiotviet_id}
+                        className="text-sm text-[#333333] font-normal"
+                        key={index}
+                      >
+                        {item.address}
+                      </option>
+                    );
+                  })}
+              </select>
+            </div>
+          </>
+        ) : (
+          <div className="flex flex-col gap-5 items-center justify-center">
+            <p className="text-xl font-semibold text-black text-center mt-20">
+              Bạn chưa có sản phẩm nào trong giỏ
+            </p>
+            <div
+              className="bg-[#0CA29C] rounded-sm px-3 py-1"
+              onClick={() => {
+                navigate("/shop");
+              }}
+            >
+              <p className="text-white font-semibold text-sm">
+                Tiếp tục mua sắm
+              </p>
             </div>
           </div>
-        </div>
+        )}
       </div>
-      <div className="flex items-center justify-between fixed bottom-0 bg-white z-40 w-full px-[12px] py-2">
-        <div className="">
-          <p className=" whitespace-nowrap text-sm font-medium  text-[#333333] ">
-            Tổng thanh toán
-          </p>
-          {/* {(!!voucherDiscount || !!voucherFreeship) && ( */}
-          <p className=" text-xs  text-[#828282] line-through ">
-            {formatNumber(987654321)} đ
-          </p>
-          {/* )} */}
-          <p className=" text-xs  font-bold  text-[#d60013] ">
-            {formatNumber(1231232)} đ
-          </p>
+      {!!dataCart && dataCart.length > 0 && (
+        <div className="flex items-center justify-between fixed bottom-0 bg-white z-40 w-full px-[12px] py-2">
+          <div className="">
+            <p className=" whitespace-nowrap text-sm font-medium  text-[#333333] ">
+              Tổng thanh toán
+            </p>
+            {!!totalProduct && pointReduce ? (
+              <>
+                <p className=" text-xs  text-[#828282] line-through ">
+                  {formatNumber(totalProduct)} đ
+                </p>
+                <p className=" text-xs  font-bold  text-[#d60013] ">
+                  {formatNumber(totalProduct - pointReduce)} đ
+                </p>
+              </>
+            ) : !!totalProduct && !pointReduce ? (
+              <p className=" text-xs  font-bold  text-[#d60013] ">
+                {formatNumber(totalProduct)} đ
+              </p>
+            ) : (
+              <></>
+            )}
+          </div>
+          <div
+            // @ts-ignore
+            // disabled={buyMutation.isLoading}
+            onClick={() => onSubmitBuy()}
+            className="bg-[#0CA29C] flex flex-col justify-center py-3 w-[30%] items-center rounded-lg"
+          >
+            <p className="text-center text-sm  font-semibold  text-white ">
+              Mua hàng
+            </p>
+          </div>
         </div>
-        <div
-          // @ts-ignore
-          // disabled={buyMutation.isLoading}
-          // onClick={() => onSubmitBuy()}
-          className="bg-[#0CA29C] flex flex-col justify-center py-3 w-[30%] items-center rounded-lg"
-        >
-          <p className="text-center text-sm  font-semibold  text-white ">
-            Mua hàng
-          </p>
+      )}
+      <BottomSheet isOpen={isOpentVoucher} setIsOpen={setIsOpenVoucher}>
+        <div className="text-lg font-semibold">Danh sách voucher</div>
+        <div className="w-full  h-auto">
+          {!!dataMyVoucher &&
+            !!dataMyVoucher.length &&
+            dataMyVoucher.map((item, index) => {
+              return (
+                <div
+                  className=""
+                  key={index}
+                  onClick={() => {
+                    handleChooseVoucher(item.voucher_id);
+                    setIsOpenVoucher(false);
+                  }}
+                >
+                  <ItemMyVoucher i={item} />
+                </div>
+              );
+            })}
         </div>
-      </div>
+      </BottomSheet>
     </div>
   );
 };

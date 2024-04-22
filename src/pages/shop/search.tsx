@@ -24,13 +24,13 @@ interface IDataProduct {
 interface IRefModalMarket {
   setVisible: React.Dispatch<React.SetStateAction<boolean>>;
 }
-const Shop = () => {
+const Search = () => {
   const { isLoggedIn } = useAuth();
   const refModalLogin = React.useRef<IRefModalMarket>(null);
 
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
-  const [choose, setChoose] = useState<number>(1);
+  const [keySearch, setKeySearch] = useState<string>("");
   const [page, setPage] = useState<number>(1);
   const [lastPage, setLastPage] = useState<number>(1);
   const [loadMore, setLoadMore] = useState<boolean>(false);
@@ -39,17 +39,21 @@ const Shop = () => {
   console.log(detailProduct);
   const [amount, setAmount] = useState<number>(1);
   const elementRef = useRef<HTMLDivElement>(null);
-  const { data: dataCategory, isFetching: isFetchingCate } = useQuery({
-    queryKey: ["dataCategory"],
-    queryFn: () => productApi.getListCate(),
-  });
-  const { data: dataList, isFetching: isFetchingList } = useQuery({
-    queryKey: ["dataList", choose],
+  const { data: dataList, refetch } = useQuery({
+    queryKey: ["dataSearch", keySearch],
     queryFn: async () => {
       try {
-        const response = await productApi.getListProductWithCate(choose, 1);
-        if (response && response.data && response.data.data) {
-          const responseData = response.data.data;
+        const response = await productApi.getListProductWithSearch(
+          keySearch,
+          1
+        );
+        if (
+          response &&
+          response.data &&
+          response.data.data &&
+          response.data.data.list_product
+        ) {
+          const responseData = response.data.data.list_product;
           if (
             Array.isArray(responseData.data) &&
             responseData.data.length > 0
@@ -69,6 +73,7 @@ const Shop = () => {
       }
     },
   });
+
   function randomTwoDigitNumber() {
     return Math.floor(Math.random() * 90) + 10; // Tạo số ngẫu nhiên từ 10 đến 99
   }
@@ -80,12 +85,17 @@ const Shop = () => {
       setPage(nextPage);
       setLoadMore(true);
       try {
-        const response = await productApi.getListProductWithCate(
-          choose,
+        const response = await productApi.getListProductWithSearch(
+          keySearch,
           nextPage
         );
-        if (response && response.data && response.data.data) {
-          const responseData = response.data.data;
+        if (
+          response &&
+          response.data &&
+          response.data.data &&
+          response.data.data.list_product
+        ) {
+          const responseData = response.data.data.list_product;
           if (
             Array.isArray(responseData.data) &&
             responseData.data.length > 0
@@ -175,7 +185,10 @@ const Shop = () => {
       refModalLogin.current?.setVisible(true);
     }
   };
-  const listCate = dataCategory?.data.data;
+  const handleSearch = (e: any) => {
+    setKeySearch(e.target.value);
+  };
+  console.log(keySearch);
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -200,11 +213,6 @@ const Shop = () => {
   }, [page, lastPage]);
 
   useEffect(() => {
-    setPage(1);
-    setLastPage(1);
-    setListData([]);
-  }, [choose]);
-  useEffect(() => {
     if (isOpen === false) {
       setAmount(1);
     }
@@ -225,20 +233,21 @@ const Shop = () => {
               className="w-[9px] h-[16px] object-contain"
             />
           </div>
-          <div
-            className="flex bg-white rounded-[20px]  items-center pl-2 flex-[0.8]"
-            onClick={() => {
-              navigate("/search");
-            }}
-          >
+          <div className="flex bg-white rounded-[20px]  items-center pl-2 flex-[0.8]">
             <img
               src={Images.iconSearch}
               alt=""
               className="w-4 h-4 object-contain"
             />
-            <div className="flex-1 py-1 rounded-[20px] px-2 text-[#8F90A6]">
-              Tìm kiếm sản phẩm
-            </div>
+            <input
+              type="text"
+              name=""
+              id=""
+              value={keySearch}
+              onChange={handleSearch}
+              className="flex-1 py-1 rounded-[20px] px-2 text-[#8F90A6]"
+              placeholder="Tìm kiếm sản phẩm"
+            />
           </div>
         </div>
         <img
@@ -247,36 +256,7 @@ const Shop = () => {
           className="w-[68px] h-[21px] object-contain"
         />
       </div>
-      <div className="overflow-x-auto no-scrollbar">
-        <div className="flex whitespace-nowrap">
-          {!!listCate &&
-            listCate.length &&
-            listCate.map((item, index) => (
-              <div
-                onClick={() => {
-                  setChoose(index + 1);
-                }}
-                key={index}
-                className={`w-fit h-auto p-1 m-2 ${
-                  choose === index + 1
-                    ? "bg-white rounded-lg shadow-[0_3px_10px_rgb(0,0,0,0.2)] border-b-2 border-b-[#0CA29C]"
-                    : ""
-                }   text-center `}
-              >
-                <div className="py-[20px] bg-[#A4FFAE] w-[80px] rounded-xl flex items-center justify-center">
-                  <img
-                    src={API_URL_IMAGE + item.imgage}
-                    alt=""
-                    className=" w-[32px] h-[32px] object-contain "
-                  />
-                </div>
-                <p className="text-[#828282] text-xs font-normal my-2">
-                  {item.name}
-                </p>
-              </div>
-            ))}
-        </div>
-      </div>
+
       <div className="flex flex-wrap justify-between px-[20px] mb-36">
         {listData.map((item, index) => {
           return (
@@ -412,4 +392,4 @@ const Shop = () => {
   );
 };
 
-export default Shop;
+export default Search;

@@ -17,10 +17,14 @@ import Notification from "../pages/notification";
 import DetailNotification from "../pages/notification/detailNotification";
 import { AuthProvider } from "../context/authContext";
 import UpdateAdr from "../pages/address/updateAdr";
+import ListProductWithType from "../pages/listProductWithType/listProductWithType1";
+import ListProductWithType1 from "../pages/listProductWithType/listProductWithType1";
+import ListProductWithType2 from "../pages/listProductWithType/listProductWithType2";
+import Search from "../pages/shop/search";
 
 const AppNavigation = () => {
   return (
-    <div className="w-full h-full ">
+    <div className="w-full h-full relative ">
       <AuthProvider>
         <Routes>
           <Route path="/" element={<Home />}></Route>
@@ -39,13 +43,21 @@ const AppNavigation = () => {
           <Route path="/notification" element={<Notification />}></Route>
           <Route path="/updateAdr" element={<UpdateAdr />}></Route>
           <Route
+            path="/listProductWithType1"
+            element={<ListProductWithType1 />}
+          ></Route>
+          <Route
+            path="/listProductWithType2"
+            element={<ListProductWithType2 />}
+          ></Route>
+          <Route
             path="/detailNotification/:id"
             element={<DetailNotification />}
           ></Route>
+          <Route path="/search" element={<Search />}></Route>
         </Routes>
+        <CustomNavigationBotom />
       </AuthProvider>
-
-      <CustomNavigationBotom />
     </div>
   );
 };

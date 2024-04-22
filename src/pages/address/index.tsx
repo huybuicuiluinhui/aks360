@@ -101,7 +101,7 @@ const Address = () => {
                 </div>
                 <div className="flex items-center justify-between pl-5 pr-3">
                   <p className="text-sm   text-[#828282]">
-                    {user?.contactNumber}
+                    {user?.phone_kiotviet}
                   </p>
                   {Number(item.is_default) === 1 ? (
                     <div

@@ -12,7 +12,6 @@ const cartApis = {
       quantity: body.quantity,
       type: body.type,
     };
-    console.log("body", body);
     return httpWithToken.post<SuccessResponse<IUser[]>>(
       `${URL_ADD_TO_CART}`,
       params

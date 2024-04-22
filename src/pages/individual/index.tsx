@@ -1,22 +1,25 @@
 import React from "react";
 import Header from "../../component/header";
 import Images from "../../static";
+import { useAuth } from "../../context/authContext";
+import { API_URL_IMAGE } from "../../utils/contanst";
 
 const Individual = () => {
+  const { user } = useAuth();
   return (
     <div className="w-full h-screen bg-[#fbfbfb]">
       <Header title="Cá nhân" />
       <div className="w-full h-full">
         <div className="flex items-center gap-2 rounded-md shadow-[0_3px_10px_rgb(0,0,0,0.2)] mx-3 my-2 py-2 px-2">
           <img
-            src={Images.imgTest}
+            src={API_URL_IMAGE + user?.avavtar}
             alt=""
             className="w-12 h-12 object-cover rounded-md"
           />
           <div className="flex flex-col justify-between h-12">
-            <p className="text-[#333333] text-xs font-bold">Lê Hồng Linh</p>
+            <p className="text-[#333333] text-xs font-bold">{user?.name}</p>
             <p className="text-[#45579A] text-[10px] font-light">
-              S8JF - S203,Vinhome Ocenpack,Gia Lâm, HN
+              {user?.phone_kiotviet}
             </p>
             <p className="text-[#009F9D] text-[10px] font-light">
               14 ĐƠN HÀNG HOÀN THÀNH
