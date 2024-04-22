@@ -86,7 +86,6 @@ const Images = {
   iconComment,
   iconAdr,
   iconOrder,
-  iconSetting,
   qrcode,
   iconDownLoad,
   iconShare2,
