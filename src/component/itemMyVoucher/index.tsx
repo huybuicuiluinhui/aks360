@@ -1,6 +1,7 @@
 import React from "react";
 import { IMyVoucher, IVoucher } from "../../types/voucher.type";
 import { API_URL_IMAGE } from "../../utils/contanst";
+import Images from "../../static";
 
 const ItemMyVoucher = ({ i }: { i: IMyVoucher }) => {
   if (i.voucher.type === 3) {
@@ -15,24 +16,35 @@ const ItemMyVoucher = ({ i }: { i: IMyVoucher }) => {
           />
         </div>
         <div className="flex-1 flex   flex-col justify-between  ml-3 py-2  ">
-          <div className="flex justify-between">
-            <p className="text-base font-semibold text-main line-clamp-1 flex-1">
+          <div className="flex justify-between items-center">
+            <p className="text-base font-semibold text-main line-clamp-1 flex-1 ">
               {i.voucher.describe}
             </p>
-            <p className="text-base text-[#004FC4] font-medium">
+            <img
+              src={Images.iconInfo2}
+              alt=""
+              className="w-5 h-5 object-contain"
+            />
+            {/* <p className="text-base text-[#004FC4] font-medium">
               Đổi với: {i.voucher.point} điểm
-            </p>
+            </p> */}
           </div>
           <p className="text-sm text-gray-500 line-clamp-1 text-[#8F90A6]">
             {i.voucher.note}
           </p>
           <div className="flex justify-between line-clamp-1">
-            <p className="text-sm  text-[#8F90A6]">
-              Date: {i.voucher.time_end}
+            <p className="text-[13px]  text-[#8F90A6]">
+              Số điểm đổi:{" "}
+              <span className="text-[#0010E5] font-semibold ">
+                {i.voucher.point}
+              </span>{" "}
+              điểm
             </p>
-            <p className="bg-gradient-to-r from-[#9C1F60] to-[#F3921F] bg-clip-text text-transparent text-sm font-medium">
-              Sử dụng
-            </p>
+            <div className="bg-[#090909] px-2 py-[2px] rounded-[4px]">
+              <p className="text-white text-transparent text-sm font-medium">
+                Sử dụng
+              </p>
+            </div>
           </div>
         </div>
       </div>

@@ -11,7 +11,6 @@ const UpdateAdr = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const item: IAddress = location.state;
-  console.log("item", item);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [selectedProvince, setSelectedProvince] = useState(item.province_id);
   const [selectedDistrict, setSelecteDistrict] = useState(item.district_id);
@@ -42,7 +41,6 @@ const UpdateAdr = () => {
   const dataProv = listProv?.data.data;
   const dataDis = listDis?.data.data;
   const dataWard = listWard?.data.data;
-  console.log(dataWard);
   const handleProvinceChange = (event: any) => {
     setSelectedProvince(event.target.value);
   };

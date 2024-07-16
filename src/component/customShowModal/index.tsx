@@ -4,7 +4,13 @@ import Images from "../../static";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import authApis from "../../apis/auth.apis";
 import { useAuth } from "../../context/authContext";
-interface IProps {}
+import ModalFollowOA from "../modalFollowOA";
+interface IRefModalMarket {
+  setVisible: React.Dispatch<React.SetStateAction<boolean>>;
+}
+interface IProps {
+  followOA: React.RefObject<IRefModalMarket>;
+}
 const ModalLogin = React.forwardRef(
   (
     props: IProps,
@@ -26,9 +32,10 @@ const ModalLogin = React.forwardRef(
         if (data.data.status && data.data.data.access_token) {
           localStorage.setItem("access_token", data.data.data.access_token);
           setVisible(false);
+          props.followOA.current?.setVisible(true);
           setIsLoggedIn(true);
           queryClient.invalidateQueries({
-            predicate: (query) => query.queryKey[0] === "dataInfo",
+            predicate: (query) => query.queryKey[0] === "dataInfoFetch",
           });
 
           // window.location.reload();

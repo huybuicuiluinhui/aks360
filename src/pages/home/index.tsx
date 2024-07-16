@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Images from "../../static";
 import SliderHome from "../../component/sliderHome/SliderHome";
 import ProductSlider from "../../component/listProduct";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import BottomSheet from "../../component/bottomSheet/BottomSheet";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import productApi from "../../apis/product.apis";
@@ -16,19 +16,12 @@ import userApis from "../../apis/user.apis";
 import cartApis from "../../apis/cart.apis";
 import { formatNumber } from "../../utils";
 import ModalLogin from "../../component/customShowModal";
-import bannerApis from "../../apis/banner.apis";
+import ModalFollowOA from "../../component/modalFollowOA";
 interface IDataMenu {
   name: string;
   img: string;
   id: number;
   screen?: string;
-}
-interface IDataProduct {
-  id: number;
-  name: string;
-  price: number;
-  oldPrice: number;
-  image: string;
 }
 interface IRefModalMarket {
   setVisible: React.Dispatch<React.SetStateAction<boolean>>;
@@ -40,6 +33,7 @@ const Home = () => {
   const [detailProduct, setDetailProduct] = useState<IProduct>();
   const [amount, setAmount] = useState<number>(1);
   const refModalLogin = React.useRef<IRefModalMarket>(null);
+  const refModalFollowOA = React.useRef<IRefModalMarket>(null);
   const dataMenu: IDataMenu[] = [
     { id: 1, name: "Tích điểm", img: Images.iconStar, screen: "/qrCode" },
     { id: 2, name: "Mua sắm", img: Images.iconLockPassword, screen: "/shop" },
@@ -49,6 +43,7 @@ const Home = () => {
       name: "Quyền lợi \n thành viên",
       img: Images.iconCrown,
       screen: "/phattrien",
+      // screen: "/membership",
     },
   ];
   const dataTitle: IDataMenu[] = [
@@ -67,9 +62,9 @@ const Home = () => {
     },
     {
       id: 4,
-      name: `Nhắn tin \n cho Shop`,
+      name: `Cố vấn AI`,
       img: Images.iconMes,
-      screen: "",
+      screen: "/chatBot",
     },
   ];
 
@@ -86,7 +81,7 @@ const Home = () => {
     queryFn: () => notificationApis.getListNotiHome(),
   });
   const { data: dataInfo, isError } = useQuery({
-    queryKey: ["dataInfo"],
+    queryKey: ["dataInfoFetch"],
     queryFn: () => userApis.getInfoUser(),
   });
   useEffect(() => {
@@ -104,7 +99,6 @@ const Home = () => {
       setUser(dataUser);
     }
   }, [dataUser]);
-
   const handleClick = () => {
     const phoneNumber = "0388343864";
     window.open(`tel:${phoneNumber}`);
@@ -173,17 +167,17 @@ const Home = () => {
   return (
     <div className="w-full h-full  bg-bg  overflow-x-hidden relative">
       {/* Header */}
-      <div className="w-full flex items-center justify-between bg-gradient-to-r from-[#50B152]   via-95% to-[#61E35E] px-4  pt-[32px] pb-20 relative">
+      <div className="w-full flex items-center justify-between bg-gradient-to-r from-[#158f3e]   via-95% to-[#36be5d] px-4  pt-[32px] pb-20 relative">
         {isLoggedIn && dataUser ? (
           <div className="flex gap-3 items-center">
             <img
               src={API_URL_IMAGE + dataUser.avavtar}
               alt=""
-              className="w-[60px] h-[60px] object-contain rounded-full"
+              className="w-[50px] h-[50px] object-cover rounded-full"
             />
-            <div className="flex flex-col h-[60px] justify-around">
+            <div className="flex flex-col h-[50px] justify-around">
               <div className="flex gap-2 items-center">
-                <p className="text-[#E8FDFF] text-xl font-medium">
+                <p className="text-[#E8FDFF] text-lg font-medium">
                   {dataUser?.name}
                 </p>
                 <img
@@ -249,8 +243,13 @@ const Home = () => {
           </div>
         </div>
 
-        <div className="bg-white shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)] rounded-[14px]   absolute top-[70%] w-[90%] left-[5%]">
-          <div className="flex items-center justify-between py-4 border-b-2 border-b-[#F0F0F0] mb-3 px-3">
+        <div className="bg-white shadow-[0px_2px_3px_-1px_rgba(185,234,196,1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)] rounded-[14px]   absolute top-[70%] w-[90%] left-[5%]">
+          <div
+            className="flex items-center justify-between py-4 border-b-2 border-b-[#F0F0F0] mb-3 px-3"
+            onClick={() => {
+              navigate("/endow");
+            }}
+          >
             <p className="text-main text-sm font-semibold">Tổng điểm tích</p>
             {isLoggedIn ? (
               <div className="flex gap-1 items-center ">
@@ -361,6 +360,14 @@ const Home = () => {
         </div>
 
         <SliderHome />
+        {/* đánh giá */}
+        <img
+          src={Images.rateBg}
+          className="w-full h-auto object-contain mb-5"
+          onClick={() => {
+            navigate("/rate");
+          }}
+        />
         {/* Sản phẩm nổi bật */}
         {!!listDataType1 && (
           <>
@@ -369,7 +376,7 @@ const Home = () => {
                 Sản phẩm nổi bật
               </p>
               <p
-                className="text-[#57C556] font-normal text-sm italic"
+                className="text-[#097770] font-normal text-sm "
                 onClick={() => {
                   navigate("/listProductWithType1");
                 }}
@@ -389,11 +396,11 @@ const Home = () => {
         {!!listDataType2 && (
           <>
             <div className="w-full flex justify-between items-center mb-2 mt-3">
-              <p className="text-lg font-semibold text-main">
+              <p className="text-base font-semibold text-main">
                 Sản phẩm bán chạy
               </p>
               <p
-                className="text-[#57C556] font-normal text-sm italic"
+                className="text-[#097770] font-normal text-sm "
                 onClick={() => {
                   navigate("/listProductWithType2");
                 }}
@@ -414,10 +421,20 @@ const Home = () => {
 
         <div className="">
           <div className="w-full flex justify-between items-center mb-2 mt-3">
-            <p className="text-lg font-semibold text-main">Thông báo shop</p>
-            <p className="text-[#57C556] font-normal text-sm italic"> Tất cả</p>
+            <p className="text-base font-semibold text-main">Thông báo shop</p>
+            <p
+              className="text-[#097770] font-normal text-sm "
+              onClick={() => {
+                navigate("/notification");
+              }}
+            >
+              {" "}
+              Tất cả
+            </p>
           </div>
           <div>
+            {/*   */}
+
             {!!listDataNotiHome &&
               !!listDataNotiHome.length &&
               listDataNotiHome.map((item, index) => {
@@ -426,16 +443,17 @@ const Home = () => {
                     onClick={() => {
                       navigate(`/detailNotification/${item.id}`);
                     }}
-                    className="border rounded  border-[#0B9C97] bg-white px-[15px] py-[7px] flex w-full gap-[20px] mt-4 justify-between"
+                    className="border rounded  border-[#0B9C97] bg-white px-[15px] py-[7px] flex w-full gap-[20px] mt-4 justify-between items-start"
                     key={index}
                   >
-                    <div className="flex flex-col gap-2">
-                      <p className="text-sm text-[#06070C] font-semibold line-clamp-3">
+                    <div className="flex flex-col gap-2 justify-between">
+                      <p className="text-sm text-[#06070C] font-semibold line-clamp-2">
                         {item.title}
                       </p>
-                      <p className="text-xs text-[#06070C] font-normal line-clamp-1">
-                        {item.description}
-                      </p>
+                      <div
+                        dangerouslySetInnerHTML={{ __html: item?.description }}
+                        className="text-xs text-[#06070C] font-normal line-clamp-2"
+                      />
                       <p className="text-[#838589] text-xs ">
                         {moment(item.time).format("YYYY-MM-DD")}
                       </p>
@@ -451,16 +469,25 @@ const Home = () => {
           </div>
         </div>
         <img
-          src={Images.bannerFooter}
+          src={Images.logoBaTot}
           alt=""
-          className="w-[60%] h-auto object-contain mt-20 mb-40 mx-auto"
+          className="w-[60%] h-auto object-contain mt-10  mx-auto"
         />
+        <p className="text-center text-base font-semibold text-black mt-2 top-2 ">
+          Mini website Sữa Ba Tốt
+        </p>
+        <p className="text-center text-sm font-normal text-[#A4A4A4] mt-2 mx-8 ">
+          Mini website này dùng cho quý khách hàng của chuỗi cửa hàng Sữa Ba Tốt
+          trên toàn quốc
+        </p>
+        <div className="h-40"></div>
       </div>
+
       <BottomSheet isOpen={isOpen} setIsOpen={setIsOpen}>
         <div className="flex flex-col w-full overflow-hidden">
           <div className="flex items-center gap-3">
             <img
-              src={API_URL_IMAGE + detailProduct?.image}
+              src={detailProduct?.image}
               alt=""
               className="w-[68px] h-[68px] object-cover"
             />
@@ -517,7 +544,8 @@ const Home = () => {
         </div>
       </BottomSheet>
 
-      <ModalLogin ref={refModalLogin} />
+      <ModalLogin ref={refModalLogin} followOA={refModalFollowOA} />
+      <ModalFollowOA ref={refModalFollowOA} />
     </div>
   );
 };

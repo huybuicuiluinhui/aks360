@@ -33,15 +33,16 @@ const SliderHome = () => {
             !!listBanner.length &&
             listBanner.map((item, index) => {
               return (
-                <div
+                <a
                   className="flex flex-col w-full items-center justify-center "
                   key={index}
+                  href={item.link_banner}
                 >
                   <img
                     src={API_URL_IMAGE + item.imgage}
-                    className="w-full  object-cover mx-auto"
+                    className="w-full  object-cover mx-auto rounded-lg"
                   />
-                </div>
+                </a>
               );
             })}
         </Slider>

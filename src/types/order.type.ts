@@ -67,6 +67,7 @@ export interface IOrderOnline {
   updated_at: string;
   user_id: number;
   voucher_id: number;
+  list_product:IItemProuductOrder[]
 }
 export interface IResponseOrderOnline {
   current_page: number;
@@ -98,4 +99,23 @@ export interface IOrderFollow {
   updated_at: string;
   user_id: number;
   voucher_id: number;
+  list_product:IItemProuductOrder[]
+}
+export interface IItemProuductOrder{
+  branch_shop_id: number;
+  category_id: number;
+  category_name: string;
+  created_at: string;
+  description_product: string;
+  detail_product: string;
+  id: number;
+  img_product: string;
+  money: number;
+  money_base: number;
+  name_product: string;
+  order_id: number;
+  product_id: number;
+  quantity: number;
+  total_money: number;
+  updated_at: string;
 }

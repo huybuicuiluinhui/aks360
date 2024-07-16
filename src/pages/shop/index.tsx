@@ -14,6 +14,7 @@ import cartApis from "../../apis/cart.apis";
 import { toast } from "react-toastify";
 import { useAuth } from "../../context/authContext";
 import ModalLogin from "../../component/customShowModal";
+import ModalFollowOA from "../../component/modalFollowOA";
 interface IDataProduct {
   id: number;
   name: string;
@@ -27,7 +28,7 @@ interface IRefModalMarket {
 const Shop = () => {
   const { isLoggedIn } = useAuth();
   const refModalLogin = React.useRef<IRefModalMarket>(null);
-
+  const refModalFollowOA = React.useRef<IRefModalMarket>(null);
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [choose, setChoose] = useState<number>(1);
@@ -36,7 +37,6 @@ const Shop = () => {
   const [loadMore, setLoadMore] = useState<boolean>(false);
   const [listData, setListData] = useState<IProduct[]>([]);
   const [detailProduct, setDetailProduct] = useState<IProduct>();
-  console.log(detailProduct);
   const [amount, setAmount] = useState<number>(1);
   const elementRef = useRef<HTMLDivElement>(null);
   const { data: dataCategory, isFetching: isFetchingCate } = useQuery({
@@ -69,9 +69,6 @@ const Shop = () => {
       }
     },
   });
-  function randomTwoDigitNumber() {
-    return Math.floor(Math.random() * 90) + 10; // Tạo số ngẫu nhiên từ 10 đến 99
-  }
   const loadMorePage = async () => {
     if (page >= lastPage) {
       return;
@@ -109,7 +106,6 @@ const Shop = () => {
     mutationFn: productApi.getDetailProduct,
     onSuccess: (data) => {
       setDetailProduct(data.data.data);
-      console.log(data);
     },
     onError: (err) => {
       console.log("lõi", err);
@@ -176,6 +172,7 @@ const Shop = () => {
     }
   };
   const listCate = dataCategory?.data.data;
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -209,10 +206,14 @@ const Shop = () => {
       setAmount(1);
     }
   }, [isOpen]);
-
+  useEffect(() => {
+    if (!!listCate && !!listCate.length) {
+      setChoose(listCate[0].id);
+    }
+  }, [listCate]);
   return (
     <div className="w-full h-full min-h-screen bg-bg">
-      <div className="w-full bg-gradient-to-r from-[#16A244] via-30% to-[#2BE318]  flex items-center  py-5 px-[20px] justify-between">
+      <div className="w-full bg-gradient-to-r from-[#158f3e]   via-95% to-[#36be5d]  flex items-center  py-5 px-[20px] justify-between">
         <div className="flex  gap-5  items-center flex-1">
           <div
             onClick={() => {
@@ -254,23 +255,33 @@ const Shop = () => {
             listCate.map((item, index) => (
               <div
                 onClick={() => {
-                  setChoose(index + 1);
+                  setChoose(item.id);
                 }}
                 key={index}
-                className={`w-fit h-auto p-1 m-2 ${
-                  choose === index + 1
-                    ? "bg-white rounded-lg shadow-[0_3px_10px_rgb(0,0,0,0.2)] border-b-2 border-b-[#0CA29C]"
+                className={` w-[80px] h-auto pb-1 m-2 ${
+                  choose === item.id
+                    ? "bg-white rounded-lg shadow-[0_3px_10px_rgb(0,0,0,0.2)] border-b-4 border-b-[#0CA29C]"
                     : ""
                 }   text-center `}
               >
-                <div className="py-[20px] bg-[#A4FFAE] w-[80px] rounded-xl flex items-center justify-center">
+                <div className=" bg-[#A4FFAE] w-[80px] rounded-lg flex items-center justify-center">
                   <img
-                    src={API_URL_IMAGE + item.imgage}
+                    src={Images.iconBatot}
                     alt=""
-                    className=" w-[32px] h-[32px] object-contain "
+                    className=" w-[75%] h-auto object-contain rounded-md my-1 "
                   />
                 </div>
-                <p className="text-[#828282] text-xs font-normal my-2">
+                <p
+                  className={`${
+                    choose === item.id
+                      ? "text-[#00A950] font-bold"
+                      : "text-[#828282] font-normal"
+                  }  text-xs px-[1px] my-2 w-[80px] line-clamp-2`}
+                  style={{
+                    wordBreak: "break-word",
+                    whiteSpace: "normal",
+                  }}
+                >
                   {item.name}
                 </p>
               </div>
@@ -287,28 +298,19 @@ const Shop = () => {
                 navigate(`/detailProduct/${item.id}`);
               }}
               key={index}
-              className=" shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)] p-2 rounded-sm  w-[48%] my-4 border-[#F6F4F4] border-2"
+              className="w-[48%] my-4 rounded-[10px]"
             >
               <img
-                src={API_URL_IMAGE + item.image}
+                src={item.image}
                 alt={item.name}
-                className="w-[100%] h-[119px] object-contain rounded-[4px]"
+                className="w-[100%] h-auto object-cover rounded-[10px]"
               />
               <p className="text-main text-sm font-medium line-clamp-2 mt-4">
                 {item.name}
               </p>
-              <img src="" alt="" />
               <div className="flex items-center justify-between mt-1">
-                <p className="text-[#E50404] font-bold text-[10px]">
-                  {formatNumber(item.price_promotional)}đ
-                </p>
-                <p className="text-black font-normal text-[10px] line-through">
-                  {formatNumber(item.price)}đ
-                </p>
-              </div>
-              <div className="flex items-center justify-between mt-1">
-                <p className="text-[10px] font-normal text-main">
-                  {randomTwoDigitNumber()} lượt xem
+                <p className="text-[#097770] font-bold text-xs">
+                  {formatNumber(item.price_promotional)} đ
                 </p>
                 <div className="flex items-center gap-1">
                   <div
@@ -321,13 +323,6 @@ const Shop = () => {
                   >
                     <img
                       src={Images.iconPlus}
-                      alt=""
-                      className="w-3 h-3 object-contain"
-                    />
-                  </div>
-                  <div className="">
-                    <img
-                      src={Images.iconMore}
                       alt=""
                       className="w-3 h-3 object-contain"
                     />
@@ -345,7 +340,7 @@ const Shop = () => {
         <div className="flex flex-col">
           <div className="flex items-center gap-3">
             <img
-              src={API_URL_IMAGE + detailProduct?.image}
+              src={detailProduct?.image}
               alt=""
               className="w-[68px] h-[68px] object-cover"
             />
@@ -358,13 +353,6 @@ const Shop = () => {
               </p>
             </div>
           </div>
-          {/* <div className="w-full h-[2px] bg-[#EAEAEA] my-2" />
-          <p className="text-[#B7B7B7] text-xs font-medium mb-2">
-            Chọn option ( 1 option )
-          </p>
-          <div className="border-[#D9D9D9] border px-3 py-2  self-start">
-            <p className="text-black text-xs font-normal">Loại 300ml</p>
-          </div> */}
           <div className=" flex justify-between mt-3 items-center">
             <p className="text-[#B7B7B7] text-xs font-medium">Số lượng</p>
             <div className="flex  border border-[#0CA29C]">
@@ -407,7 +395,8 @@ const Shop = () => {
           </div>
         </div>
       </BottomSheet>
-      <ModalLogin ref={refModalLogin} />
+      <ModalLogin ref={refModalLogin} followOA={refModalFollowOA} />
+      <ModalFollowOA ref={refModalFollowOA} />
     </div>
   );
 };

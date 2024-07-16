@@ -14,6 +14,7 @@ import cartApis from "../../apis/cart.apis";
 import { toast } from "react-toastify";
 import { useAuth } from "../../context/authContext";
 import ModalLogin from "../../component/customShowModal";
+import ModalFollowOA from "../../component/modalFollowOA";
 interface IDataProduct {
   id: number;
   name: string;
@@ -27,6 +28,7 @@ interface IRefModalMarket {
 const Search = () => {
   const { isLoggedIn } = useAuth();
   const refModalLogin = React.useRef<IRefModalMarket>(null);
+  const refModalFollowOA = React.useRef<IRefModalMarket>(null);
 
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
@@ -36,7 +38,6 @@ const Search = () => {
   const [loadMore, setLoadMore] = useState<boolean>(false);
   const [listData, setListData] = useState<IProduct[]>([]);
   const [detailProduct, setDetailProduct] = useState<IProduct>();
-  console.log(detailProduct);
   const [amount, setAmount] = useState<number>(1);
   const elementRef = useRef<HTMLDivElement>(null);
   const { data: dataList, refetch } = useQuery({
@@ -188,7 +189,6 @@ const Search = () => {
   const handleSearch = (e: any) => {
     setKeySearch(e.target.value);
   };
-  console.log(keySearch);
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -220,7 +220,7 @@ const Search = () => {
 
   return (
     <div className="w-full h-full min-h-screen bg-bg">
-      <div className="w-full bg-gradient-to-r from-[#16A244] via-30% to-[#2BE318]  flex items-center  py-5 px-[20px] justify-between">
+      <div className="w-full bg-gradient-to-r from-[#158f3e]   via-95% to-[#36be5d]  flex items-center  py-5 px-[20px] justify-between">
         <div className="flex  gap-5  items-center flex-1">
           <div
             onClick={() => {
@@ -245,7 +245,7 @@ const Search = () => {
               id=""
               value={keySearch}
               onChange={handleSearch}
-              className="flex-1 py-1 rounded-[20px] px-2 text-[#8F90A6]"
+              className="flex-1 py-1 rounded-[20px] px-2 text-[#8F90A6] outline-none"
               placeholder="Tìm kiếm sản phẩm"
             />
           </div>
@@ -267,28 +267,19 @@ const Search = () => {
                 navigate(`/detailProduct/${item.id}`);
               }}
               key={index}
-              className=" shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)] p-2 rounded-sm  w-[48%] my-4 border-[#F6F4F4] border-2"
+              className="w-[48%] my-4 rounded-[10px]"
             >
               <img
-                src={API_URL_IMAGE + item.image}
+                src={item.image}
                 alt={item.name}
-                className="w-[100%] h-[119px] object-contain rounded-[4px]"
+                className="w-[100%] h-auto object-cover rounded-[10px]"
               />
               <p className="text-main text-sm font-medium line-clamp-2 mt-4">
                 {item.name}
               </p>
-              <img src="" alt="" />
               <div className="flex items-center justify-between mt-1">
-                <p className="text-[#E50404] font-bold text-[10px]">
-                  {formatNumber(item.price_promotional)}đ
-                </p>
-                <p className="text-black font-normal text-[10px] line-through">
-                  {formatNumber(item.price)}đ
-                </p>
-              </div>
-              <div className="flex items-center justify-between mt-1">
-                <p className="text-[10px] font-normal text-main">
-                  {randomTwoDigitNumber()} lượt xem
+                <p className="text-[#097770] font-bold text-xs">
+                  {formatNumber(item.price_promotional)} đ
                 </p>
                 <div className="flex items-center gap-1">
                   <div
@@ -301,13 +292,6 @@ const Search = () => {
                   >
                     <img
                       src={Images.iconPlus}
-                      alt=""
-                      className="w-3 h-3 object-contain"
-                    />
-                  </div>
-                  <div className="">
-                    <img
-                      src={Images.iconMore}
                       alt=""
                       className="w-3 h-3 object-contain"
                     />
@@ -325,7 +309,7 @@ const Search = () => {
         <div className="flex flex-col">
           <div className="flex items-center gap-3">
             <img
-              src={API_URL_IMAGE + detailProduct?.image}
+              src={detailProduct?.image}
               alt=""
               className="w-[68px] h-[68px] object-cover"
             />
@@ -387,7 +371,8 @@ const Search = () => {
           </div>
         </div>
       </BottomSheet>
-      <ModalLogin ref={refModalLogin} />
+      <ModalLogin ref={refModalLogin} followOA={refModalFollowOA} />
+      <ModalFollowOA ref={refModalFollowOA} />
     </div>
   );
 };

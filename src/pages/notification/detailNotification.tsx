@@ -9,7 +9,6 @@ import moment from "moment";
 const DetailNotification = () => {
   const params = useParams();
   const id = params?.id;
-  console.log("id", id);
   const { data: dataDetailNoti, isFetching: isFetchingCate } = useQuery({
     queryKey: ["dataDetailNoti"],
     queryFn: () => notificationApis.getNotiDetail(Number(id)),

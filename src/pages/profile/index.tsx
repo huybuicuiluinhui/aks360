@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import Images from "../../static";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/authContext";
-import QRCode from "react-qr-code";
+// import QRCode from "react-qr-code";
 import { API_URL_IMAGE } from "../../utils/contanst";
+import QRCode from "qrcode.react";
+
 interface IITemSetting {
   id: number;
   name: string;
@@ -13,7 +15,7 @@ interface IITemSetting {
 }
 const Profile = () => {
   const navigate = useNavigate();
-  const { user, setUser } = useAuth();
+  const { user } = useAuth();
   const [dataSetting, setDataSetting] = useState<IITemSetting[]>([
     {
       id: 1,
@@ -40,11 +42,53 @@ const Profile = () => {
       img: Images.iconComment,
       screen: "",
     },
+    {
+      id: 5,
+      name: " Đổi mật khẩu",
+      img: Images.iconChangePass,
+      screen: "/changePass",
+    },
+    {
+      id: 6,
+      name: " Đăng xuất",
+      img: Images.iconLogout,
+      screen: "",
+    },
   ]);
+  const handleDownloadQRCode = () => {
+    const canvas: any = document.querySelector("canvas");
+    if (canvas) {
+      const pngUrl = canvas
+        .toDataURL("image/png")
+        .replace("image/png", "image/octet-stream");
+      let downloadLink = document.createElement("a");
+      downloadLink.href = pngUrl;
+      downloadLink.download = "qrcode.png";
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+    }
+  };
+  const share = async () => {
+    const canvas: any = document.querySelector("canvas");
+    const url = canvas.toDataURL("image/png");
+    if (navigator.share) {
+      navigator
+        .share({
+          title: "My QR Code",
+          text: "QR code!",
+          url: url, // this should be data url of your QR Code image
+        })
+        .then(() => console.log("Successful share"))
+        .catch((error) => console.log("Error sharing", error));
+    } else {
+      console.log(`Web share not supported`);
+    }
+  };
   return (
     <div className="w-full h-full  bg-bg  ">
       {/* Header */}
-      <div className="flex items-center justify-between bg-gradient-to-r from-[#16A244] via-30% to-[#2BE318] px-3  pt-[32px] pb-20 relative">
+      <div className="flex items-center justify-between bg-gradient-to-r from-[#158f3e]   via-95% to-[#36be5d] px-3  pt-[32px] pb-20 relative">
         <div className="flex justify-between items-center w-full">
           <div className="flex gap-3 items-center">
             <img
@@ -53,8 +97,8 @@ const Profile = () => {
               className="w-[60px] h-[60px] object-contain rounded-full"
             />
             <div className="flex flex-col h-[60px] justify-around">
-              <p className="text-white text-xl font-normal">Xin chào,</p>
-              <p className="text-white text-2xl font-semibold">{user?.name}</p>
+              <p className="text-white text-lg font-normal">Xin chào,</p>
+              <p className="text-white text-xl font-semibold">{user?.name}</p>
             </div>
           </div>
           <img
@@ -92,7 +136,6 @@ const Profile = () => {
             }}
           >
             <div className="  flex   items-center gap-3 pl-3 ">
-              {/* <div className=" bg-[#B2F1EE] rounded-full p-[12px] flex flex-col items-center   w-fit "> */}
               <img
                 src={Images.iconGift}
                 alt=""
@@ -161,19 +204,21 @@ const Profile = () => {
             SĐT khách hàng: {user?.phone_kiotviet}
           </p>
           <div className="relative w-full h-fit flex flex-col justify-center  ">
-            {/* <img
-          src={Images.qrcode}
-          alt=""
-          className="w-[50%] h-auto  mx-auto block object-contain"
-        /> */}
             {!!user?.phone_kiotviet && (
               <QRCode
-                size={256}
-                // style={{ height: "auto", maxWidth: "100%", width: "100%" }}
                 value={user?.phone_kiotviet}
-                className="w-[50%] h-auto  mx-auto block object-contain b"
+                size={256}
                 viewBox={`0 0 256 256`}
+                // ref={qrCodeRef}
+                className="w-[50%] h-auto  mx-auto block object-contain"
               />
+              // <QRCode
+              //   size={256}
+              //   ref={qrCodeRef}
+              //   value={user?.phone_kiotviet}
+              //   className="w-[50%] h-auto  mx-auto block object-contain b"
+              //   viewBox={`0 0 256 256`}
+              // />
             )}
 
             <img
@@ -183,7 +228,10 @@ const Profile = () => {
             />
           </div>
           <div className="flex mt-4 justify-around">
-            <div className="flex items-center gap-2 shadow-[0_3px_10px_rgb(0,0,0,0.2)]  rounded-[50px] px-[20px] py-3">
+            <div
+              className="flex items-center gap-2 shadow-[0_3px_10px_rgb(0,0,0,0.2)]  rounded-[50px] px-[20px] py-3"
+              onClick={handleDownloadQRCode}
+            >
               <img
                 src={Images.iconDownLoad}
                 alt=""
@@ -193,7 +241,10 @@ const Profile = () => {
                 Tải xuống QR Code
               </p>
             </div>
-            <div className="flex items-center gap-2 shadow-[0_3px_10px_rgb(0,0,0,0.2)]  rounded-[50px] px-[20px] py-3">
+            <div
+              className="flex items-center gap-2 shadow-[0_3px_10px_rgb(0,0,0,0.2)]  rounded-[50px] px-[20px] py-3"
+              onClick={share}
+            >
               <img
                 src={Images.iconShare2}
                 alt=""

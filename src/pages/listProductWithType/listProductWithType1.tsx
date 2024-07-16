@@ -12,6 +12,7 @@ import { useAuth } from "../../context/authContext";
 import cartApis from "../../apis/cart.apis";
 import { toast } from "react-toastify";
 import ModalLogin from "../../component/customShowModal";
+import ModalFollowOA from "../../component/modalFollowOA";
 interface IRefModalMarket {
   setVisible: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -26,10 +27,10 @@ const ListProductWithType1 = () => {
   const [detailProduct, setDetailProduct] = useState<IProduct>();
   const elementRef = useRef<HTMLDivElement>(null);
   const refModalLogin = React.useRef<IRefModalMarket>(null);
+  const refModalFollowOA = React.useRef<IRefModalMarket>(null);
   function randomTwoDigitNumber() {
     return Math.floor(Math.random() * 90) + 10;
   }
-  console.log("lastPage", listData);
   const navigate = useNavigate();
   const { data: dataProductType1 } = useQuery({
     queryKey: ["dataProductType1"],
@@ -194,28 +195,25 @@ const ListProductWithType1 = () => {
                 navigate(`/detailProduct/${item.id}`);
               }}
               key={index}
-              className=" shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)] p-2 rounded-sm  w-[48%] my-4 border-[#F6F4F4] border-2"
+              className=" pb-2 rounded-[10px]  w-[48%] my-4 "
             >
               <img
-                src={API_URL_IMAGE + item.image}
+                src={item.image}
                 alt={item.name}
-                className="w-[100%] h-[119px] object-contain rounded-[4px]"
+                className="w-[100%] h-auto object-contain rounded-[10px]"
               />
               <p className="text-main text-sm font-medium line-clamp-2 mt-4">
                 {item.name}
               </p>
-              <img src="" alt="" />
-              <div className="flex items-center justify-between mt-1">
-                <p className="text-[#E50404] font-bold text-[10px]">
-                  {formatNumber(item.price_promotional)}đ
-                </p>
+              {/* <div className="flex items-center justify-between mt-1">
+               
                 <p className="text-black font-normal text-[10px] line-through">
                   {formatNumber(item.price)}đ
                 </p>
-              </div>
+              </div> */}
               <div className="flex items-center justify-between mt-1">
-                <p className="text-[10px] font-normal text-main">
-                  {randomTwoDigitNumber()} lượt xem
+                <p className="text-[#097770] font-bold text-xs">
+                  {formatNumber(item.price)} đ
                 </p>
                 <div className="flex items-center gap-1">
                   <div
@@ -232,13 +230,13 @@ const ListProductWithType1 = () => {
                       className="w-3 h-3 object-contain"
                     />
                   </div>
-                  <div className="">
+                  {/* <div className="">
                     <img
                       src={Images.iconMore}
                       alt=""
                       className="w-3 h-3 object-contain"
                     />
-                  </div>
+                  </div> */}
                 </div>
               </div>
             </div>
@@ -252,7 +250,7 @@ const ListProductWithType1 = () => {
         <div className="flex flex-col">
           <div className="flex items-center gap-3">
             <img
-              src={API_URL_IMAGE + detailProduct?.image}
+              src={detailProduct?.image}
               alt=""
               className="w-[68px] h-[68px] object-cover"
             />
@@ -308,7 +306,8 @@ const ListProductWithType1 = () => {
           </div>
         </div>
       </BottomSheet>
-      <ModalLogin ref={refModalLogin} />
+      <ModalLogin ref={refModalLogin} followOA={refModalFollowOA} />
+      <ModalFollowOA ref={refModalFollowOA} />
     </div>
   );
 };

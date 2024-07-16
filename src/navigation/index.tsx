@@ -21,6 +21,10 @@ import ListProductWithType from "../pages/listProductWithType/listProductWithTyp
 import ListProductWithType1 from "../pages/listProductWithType/listProductWithType1";
 import ListProductWithType2 from "../pages/listProductWithType/listProductWithType2";
 import Search from "../pages/shop/search";
+import ChatBot from "../pages/chatBot";
+import Membership from "../pages/membership";
+import ChangePass from "../pages/changePass";
+import Rate from "../pages/rate";
 
 const AppNavigation = () => {
   return (
@@ -55,6 +59,10 @@ const AppNavigation = () => {
             element={<DetailNotification />}
           ></Route>
           <Route path="/search" element={<Search />}></Route>
+          <Route path="/chatBot" element={<ChatBot />}></Route>
+          <Route path="/membership" element={<Membership />}></Route>
+          <Route path="/changePass" element={<ChangePass />}></Route>
+          <Route path="/rate" element={<Rate />}></Route>
         </Routes>
         <CustomNavigationBotom />
       </AuthProvider>

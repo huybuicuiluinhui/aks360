@@ -5,6 +5,7 @@ import iconCopy from "./icons/iconCopy.png";
 import iconCrown from "./icons/iconCrown.png";
 import iconGift from "./icons/iconGift.png";
 import iconInfo from "./icons/iconInfo.png";
+import iconInfo2 from "./icons/iconInfo2.png";
 import iconLockPassword from "./icons/iconLockPassword.png";
 import iconPlus from "./icons/iconPlus.png";
 import iconProfile from "./icons/iconProfile.png";
@@ -56,6 +57,20 @@ import imgTestNoti from "./icons/imgTestNoti.png";
 import iconForDot from "./icons/iconForDot.png";
 import logoBaTot from "./icons/logoBaTot.png";
 import iconClose from "./icons/iconClose.png";
+import backgroundChat from "./icons/backgroundChat.png";
+import iconAvatarChatBot from "./icons/iconAvatarChatBot.png";
+import iconSendMes from "./icons/iconSendMes.png";
+import cardVip from "./icons/cardVip.png";
+import iconLogout from "./icons/iconLogout.png";
+import iconChangePass from "./icons/iconChangePass.png";
+import iconBatot from "./icons/iconBatot.png";
+import rateBg from "./icons/rateBg.png";
+import starNon from "./icons/starNon.png";
+import starActive from "./icons/starActive.png";
+import iconBatotModal from "./icons/iconBatotModal.png";
+import iconCloseBg from "./icons/iconCloseBg.png";
+import iconBuyNow from "./icons/iconBuyNow.png";
+import iconPhone from "./icons/iconPhone.png";
 const Images = {
   iconHome,
   icon24h,
@@ -64,6 +79,7 @@ const Images = {
   iconCrown,
   iconGift,
   iconInfo,
+  iconInfo2,
   iconLockPassword,
   iconPlus,
   iconProfile,
@@ -115,5 +131,20 @@ const Images = {
   iconForDot,
   logoBaTot,
   iconClose,
+  backgroundChat,
+  iconAvatarChatBot,
+  iconSendMes,
+  cardVip,
+  iconLogout,
+  iconChangePass,
+  rateBg,
+  iconBatot,
+  starNon,
+starActive,
+iconBatotModal,
+iconCloseBg,
+iconBuyNow,
+iconPhone
 };
+
 export default Images;

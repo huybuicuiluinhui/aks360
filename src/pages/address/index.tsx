@@ -22,7 +22,6 @@ const Address = () => {
     mutationFn: addressApi.deleteAdr,
     onSuccess: (data) => {
       refetch();
-      console.log(data.data);
       toast.success(data.data.msg);
     },
     onError: (err) => {

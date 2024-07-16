@@ -77,7 +77,6 @@ const Cart = () => {
     setIdVoucher(id);
     checkVoucher.mutate(id);
   };
-  console.log("dataMyVoucher", dataMyVoucher);
   const handleRefetch = () => {
     refetch();
   };

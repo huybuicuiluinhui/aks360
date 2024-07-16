@@ -32,15 +32,12 @@ const ProductSlider: React.FC<ProductSliderProps> = ({
     slidesToShow: 2,
     slidesToScroll: 1,
   };
-  function randomTwoDigitNumber() {
-    return Math.floor(Math.random() * 90) + 10;
-  }
+
   const navigate = useNavigate();
   const detailProductMutation = useMutation({
     mutationFn: productApi.getDetailProduct,
     onSuccess: (data) => {
       setDetailProduct(data.data.data);
-      console.log(data);
     },
     onError: (err) => {
       console.log("lõi", err);
@@ -52,33 +49,27 @@ const ProductSlider: React.FC<ProductSliderProps> = ({
   return (
     <Slider {...settings}>
       {products.map((product) => (
-        <div
-          key={product.id}
-          className="p-4 rounded-[10px]   bg-white  shadow-[0px_1px_3px_0px_rgba(0,0,0,0.05)]"
-        >
+        <div key={product.id} className=" rounded-[10px]   bg-[#fbfbfb]  pb-2">
           <img
             onClick={() => {
               navigate(`/detailProduct/${product.id}`);
             }}
-            src={API_URL_IMAGE + product.image}
+            src={product.image}
             alt={product.name}
-            className="w-[100%] h-[119px] object-contain rounded-[4px]"
+            className="w-[100%] h-auto object-contain rounded-[10px]"
           />
           <p className="text-main text-sm font-medium line-clamp-2 mt-4">
             {product.name}
           </p>
-          <img src="" alt="" />
+          {/* <div className="flex items-center justify-between mt-1">
+          
+          </div> */}
           <div className="flex items-center justify-between mt-1">
-            <p className="text-[#E50404] font-bold text-[10px]">
-              {formatNumber(product.price_promotional)}đ
-            </p>
-            <p className="text-black font-normal text-[10px] line-through">
-              {formatNumber(product.price)}đ
-            </p>
-          </div>
-          <div className="flex items-center justify-between mt-1">
-            <p className="text-[10px] font-normal text-main flex-1">
+            {/* <p className="text-[10px] font-normal text-main flex-1">
               {randomTwoDigitNumber()} lượt xem
+            </p> */}
+            <p className="text-[#097770] font-bold text-[10px]">
+              {formatNumber(product.price)}đ
             </p>
             <div className="flex items-center gap-1">
               <div
@@ -90,13 +81,6 @@ const ProductSlider: React.FC<ProductSliderProps> = ({
               >
                 <img
                   src={Images.iconPlus}
-                  alt=""
-                  className="w-3 h-3 object-contain"
-                />
-              </div>
-              <div className="">
-                <img
-                  src={Images.iconMore}
                   alt=""
                   className="w-3 h-3 object-contain"
                 />

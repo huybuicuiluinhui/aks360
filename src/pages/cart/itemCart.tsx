@@ -13,8 +13,6 @@ import cartApis from "../../apis/cart.apis";
 import { useAuth } from "../../context/authContext";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import { AxiosResponse } from "axios";
-import { SuccessResponse } from "../../types/auth.type";
 
 const ItemCart = ({
   item,
@@ -85,7 +83,7 @@ const ItemCart = ({
           <img
             src={
               item.product_detail.image
-                ? API_URL_IMAGE + item.product_detail.image
+                ? item.product_detail.image
                 : Images.imgTest
             }
             className="h-20 w-20 object-cover rounded"
@@ -97,11 +95,9 @@ const ItemCart = ({
           {item?.product_detail?.name}
         </p>
         <p className=" text-xs  font-bold my-1 text-[#d60013]">
-          {formatNumber(item?.product_detail?.price_promotional)} đ
-        </p>
-        <p className=" text-[8px]  text-[#828282] line-through">
           {formatNumber(item?.product_detail?.price)} đ
         </p>
+
         <div className="flex items-center justify-between">
           <div className="flex">
             <div

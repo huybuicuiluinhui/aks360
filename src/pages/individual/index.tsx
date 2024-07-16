@@ -47,7 +47,7 @@ const Individual = () => {
             className="border border-[#D9D9D9D9] rounded-[5px] placeholder-[#333333] w-[95%] text-[#333333]   px-2 py-1 mb-3"
           />
         </div>
-        <div className="flex flex-col ">
+        <div className="flex flex-col " onClick={() => {}}>
           <div className=" bg-[#0DADA4] mx-auto self-center px-10 py-1 rounded-md">
             <p className="text-white font-medium text-[15px]">Cập nhật</p>
           </div>

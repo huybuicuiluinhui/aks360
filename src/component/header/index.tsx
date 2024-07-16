@@ -6,9 +6,10 @@ const Header = ({ title }: { title: string }) => {
   const navigate = useNavigate();
   return (
     <div style={{ position: "sticky", top: 0, zIndex: 999 }}>
-      <div className="w-full bg-gradient-to-r from-[#16A244] via-30% to-[#2BE318] flex items-center justify-between py-5 px-[20px] ">
+      <div className="w-full bg-gradient-to-r from-[#158f3e]   via-95% to-[#36be5d] flex items-center justify-between py-5 pr-[20px] pl-[10px] ">
         <div className="flex items-center gap-5  ">
           <div
+            className="py-2 px-4 "
             onClick={() => {
               navigate(-1);
             }}

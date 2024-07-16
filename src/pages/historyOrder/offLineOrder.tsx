@@ -10,10 +10,9 @@ const OffLineOrder = () => {
     queryKey: ["listOrderOFf"],
     queryFn: () => orderApis.getOrderOff(),
   });
-  console.log(listOrderOFf);
   const dataOrderOff = listOrderOFf?.data.data;
   return (
-    <div className="w-full h-full">
+    <div className="w-full h-full bg-bg ">
       <div className="flex justify-between items-center px-3 mt-3">
         <div className="flex gap-2 items-center">
           <p className="text-xs text-[#828282] font-light">Sắp xếp</p>

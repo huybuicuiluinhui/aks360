@@ -8,7 +8,7 @@ import {
 import { httpWithToken } from "../utils/http";
 
 const URL_ORDER_OFFLINE = "order/get-order-offline";
-const URL_ORDER_ONLINE = "order/get-order-online";
+const URL_ORDER_ONLINE = "order/get-order-online?page=";
 const URL_ORDER_CHECK_POINT = "order/check-plus-points?total_money=";
 const URL_ORDER_CHECK_VOUCHER = "order/check-dicount-voucher-order?voucher_id=";
 const URL_ORDER_CREATE = "order/create-order";
@@ -18,9 +18,9 @@ const orderApis = {
   getOrderOff() {
     return httpWithToken.get<SuccessResponse<IOrder[]>>(URL_ORDER_OFFLINE);
   },
-  getOrderOnline() {
+  getOrderOnline(page: number) {
     return httpWithToken.get<SuccessResponse<IResponseOrderOnline>>(
-      URL_ORDER_ONLINE
+      `${URL_ORDER_ONLINE}?page=${page}`
     );
   },
   checkOrderPoint(total: number) {

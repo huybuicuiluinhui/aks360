@@ -1,14 +1,32 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Header from "../../component/header";
 import Images from "../../static";
 import { formatNumber } from "../../utils";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import productApi from "../../apis/product.apis";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { API_URL_IMAGE } from "../../utils/contanst";
+import ProductSlider from "../../component/listProduct";
+import BottomSheet from "../../component/bottomSheet/BottomSheet";
+import { IProduct } from "../../types/product.type";
+import { useAuth } from "../../context/authContext";
+import cartApis from "../../apis/cart.apis";
+import { toast } from "react-toastify";
+import ModalLogin from "../../component/customShowModal";
+import ModalFollowOA from "../../component/modalFollowOA";
+interface IRefModalMarket {
+  setVisible: React.Dispatch<React.SetStateAction<boolean>>;
+}
 const DetailProduct = () => {
+  const { isLoggedIn } = useAuth();
+  const navigate = useNavigate();
+  const refModalLogin = React.useRef<IRefModalMarket>(null);
+  const refModalFollowOA = React.useRef<IRefModalMarket>(null);
   const params = useParams();
+  const [amount, setAmount] = useState<number>(1);
   const id = params?.id;
+  const [isOpen, setIsOpen] = useState(false);
+  const [dataDetail, setDataDetail] = useState<IProduct>();
   const { data: dataDetailProduct, isFetching: isFetchingCate } = useQuery({
     queryKey: ["dataDetailProduct"],
     queryFn: () => productApi.getDetailProduct(Number(id)),
@@ -32,8 +50,70 @@ const DetailProduct = () => {
       });
     }
   }, [id]);
-
+  const { data: dataWithType1 } = useQuery({
+    queryKey: ["dataProductWithType1"],
+    queryFn: () => productApi.getListProductWithType(1),
+  });
+  const listDataType1 = dataWithType1?.data.data;
   const detailProduct = dataDetailProduct?.data.data;
+  const handleReduce = () => {
+    setAmount((amount) => {
+      if (amount > 1) {
+        return amount - 1;
+      } else {
+        return amount;
+      }
+    });
+  };
+  const handleIncrease = () => {
+    setAmount((amount) => {
+      if (amount >= Number(detailProduct?.quantity)) {
+        return amount;
+      } else {
+        return amount + 1;
+      }
+    });
+  };
+  const updateCartMutation = useMutation({
+    mutationFn: cartApis.updateCart,
+    onSuccess: (data) => {
+      toast.success(data.data.message);
+      setIsOpen(false);
+    },
+    onError: (err) => {
+      console.log("lõi", err);
+    },
+  });
+  const handleAddToCart = () => {
+    if (!!isLoggedIn) {
+      updateCartMutation.mutate({
+        product_id: Number(detailProduct?.id),
+        quantity: amount,
+        type: 1,
+      });
+    } else {
+      refModalLogin.current?.setVisible(true);
+    }
+  };
+  const handleBuyNow = () => {
+    if (!!isLoggedIn) {
+      updateCartMutation.mutate(
+        {
+          product_id: Number(detailProduct?.id),
+          quantity: amount,
+          type: 1,
+        },
+        {
+          onSuccess: () => {
+            navigate("/cart");
+          },
+        }
+      );
+    } else {
+      refModalLogin.current?.setVisible(true);
+    }
+  };
+  console.log("detailProduct", detailProduct);
   return (
     <div className="w-full h-full bg-bg">
       <Header title="Chi tiết sản phẩm" />
@@ -41,48 +121,121 @@ const DetailProduct = () => {
         <div className="w-full h-full">
           <div className=" relative h-[410px]">
             <img
-              src={API_URL_IMAGE + detailProduct?.image}
+              src={detailProduct?.image}
               alt=""
               className="w-full h-[410px] object-cover "
             />
-            <div className=" bg-[#A9D6D4] rounded-[10px] p-2 absolute top-3 left-3 flex flex-col items-center">
-              <p className="text-[#FF1F00] text-[22px] font-semibold">Sale</p>
-              <p className="text-xs text-[#09121F] font-light">Đang giảm giá</p>
-            </div>
           </div>
-
-          <div className="bg-[#E8FDFF] w-full  px-[12px] py-3">
-            <div className=" flex gap-1 items-center">
-              <img
-                src={Images.iconForDot}
-                alt=""
-                className="w-6 h-6 object-contain "
-              />
-              <p className="text-lg text-main uppercase font-medium">
-                {detailProduct.name}
-              </p>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-[#0CA49E] text-[17px] font-semibold">
-                  {formatNumber(detailProduct.price_promotional)}đ/lọ
-                </p>
-                <p className="text-[#000] text-[10px] font-semibold line-through">
-                  {formatNumber(detailProduct.price)} đ
-                </p>
-              </div>
-              <p className="text-main text-xs font-normal">{view} lượt xem</p>
-            </div>
+          <div className=" py-3  px-3 flex items-center justify-between">
+            <p className="text-[#0C1A30] text-sm font-normal">
+              Thương hiệu:{" "}
+              <span className="font-bold">{detailProduct.full_name}</span>
+            </p>
+            <p className="text-[#0C1A30] text-sm font-normal">
+              Mã SKU:{" "}
+              <span className="font-bold">
+                {detailProduct.code_product_kiotviet}
+              </span>
+            </p>
           </div>
-          <div className=" w-full  px-[12px] py-3">
+          <p className="text-lg text-[#0D7840]  font-bold mx-3  mb-3">
+            {detailProduct.name}
+          </p>
+          <div className="bg-[#F5F7FD]   mx-[12px] py-[6px]  rounded-md px-3">
+            <p className="text-[#097770] text-[28px] font-semibold ">
+              {formatNumber(detailProduct.price_promotional)} đ
+            </p>
+          </div>
+          <div className=" bg-[#F5F7FD]    mx-[12px] py-[6px]  rounded-md  px-[12px] mt-3 ">
             <p className="text-lg text-main  font-bold">Mô tả sản phẩm</p>
             <div
               className="text-[#000] font-normal text-[15px]  mb-2 mt-1"
               dangerouslySetInnerHTML={{ __html: detailProduct.note }}
             ></div>
           </div>
+          {/* sản phẩm đã xem */}
+          {!!listDataType1 && (
+            <div className="bg-[#F5F7FD]    mx-[12px] py-[6px]  rounded-md mt-3">
+              <div className="w-full flex justify-between items-center mb-2 mt-3">
+                <p className="text-base font-bold text-[#09121F] px-3 ">
+                  Sản phẩm nổi bật
+                </p>
+              </div>
+              <div className="w-full overflow-hidden">
+                <ProductSlider
+                  products={listDataType1}
+                  isOpen={isOpen}
+                  setIsOpen={setIsOpen}
+                  detailProduct={dataDetail}
+                  setDetailProduct={setDataDetail}
+                />
+              </div>
+            </div>
+          )}
         </div>
       )}
+      <BottomSheet isOpen={isOpen} setIsOpen={setIsOpen}>
+        <div className="flex flex-col">
+          <div className="flex items-center gap-3">
+            <img
+              src={detailProduct?.image}
+              alt=""
+              className="w-[68px] h-[68px] object-cover"
+            />
+            <div className="gap-2">
+              <p className="text-sm text-[#28293D] font-medium">
+                {detailProduct?.name}
+              </p>
+              <p className="text-[#F10000] text-[19px] font-semibold">
+                {formatNumber(Number(detailProduct?.price))} đ
+              </p>
+            </div>
+          </div>
+
+          <div className=" flex justify-between mt-3 items-center">
+            <p className="text-[#B7B7B7] text-xs font-medium">Số lượng</p>
+            <div className="flex  border border-[#0CA29C]">
+              <div
+                className="bg-[#C7FFFD] w-[50px] h-[36px] flex justify-center items-center"
+                onClick={handleReduce}
+              >
+                -
+              </div>
+              <div className="bg-[#fff] w-[60px] h-[36px] flex justify-center items-center border-l border-r border-l-[#0CA29C] border-r-[#0CA29C]">
+                {amount}
+              </div>
+              <div
+                className="bg-[#C7FFFD] w-[50px] h-[36px] flex justify-center items-center"
+                onClick={handleIncrease}
+              >
+                +
+              </div>
+            </div>
+          </div>
+          <div className="flex justify-around mt-5 mb-[80px]">
+            <div
+              className="w-[46%] border border-[#0CA29C] rounded-[3px] flex justify-center items-center"
+              onClick={() => {
+                handleAddToCart();
+              }}
+            >
+              <p className="py-2 text-sm font-medium text-[#0CA29C]">
+                Thêm vào giỏ hàng
+              </p>
+            </div>
+            <div
+              className="w-[46%] bg-[#0CA29C] border border-[#0CA29C] rounded-[3px] flex justify-center items-center"
+              onClick={() => {
+                handleBuyNow();
+              }}
+            >
+              <p className="py-2 text-sm font-medium text-[#fff]">Mua ngay</p>
+            </div>
+          </div>
+        </div>
+      </BottomSheet>
+      <ModalLogin ref={refModalLogin} followOA={refModalFollowOA} />
+      <ModalFollowOA ref={refModalFollowOA} />
     </div>
   );
 };

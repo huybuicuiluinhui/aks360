@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from "react-router";
 import Images from "../static";
 import { useAuth } from "../context/authContext";
 import ModalLogin from "../component/customShowModal";
+import ModalFollowOA from "../component/modalFollowOA";
 interface IRefModalMarket {
   setVisible: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -28,6 +29,7 @@ export type TabKeys = keyof typeof tabs;
 export const BOTTOM_NAVIGATION_PAGES = ["/", "/shop", "/profile"];
 
 export const CustomNavigationBotom: FC = () => {
+  const refModalFollowOA = React.useRef<IRefModalMarket>(null);
   const [activeTab, setActiveTab] = useState<TabKeys | string>("/");
   const { isLoggedIn } = useAuth();
   const navigate = useNavigate();
@@ -59,7 +61,6 @@ export const CustomNavigationBotom: FC = () => {
                 key={index}
                 className="flex flex-col items-center flex-1 justify-center"
                 onClick={() => {
-                  console.log(isLoggedIn);
                   if (
                     tabs[path].label !== "Trang chủ" &&
                     isLoggedIn === false
@@ -99,7 +100,9 @@ export const CustomNavigationBotom: FC = () => {
             ))}
           </div>
         </div>
-        <ModalLogin ref={refModalLogin} />
+        <ModalLogin ref={refModalLogin} followOA={refModalFollowOA} />
+      <ModalFollowOA ref={refModalFollowOA} />
+
       </div>
     );
   }
