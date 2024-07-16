@@ -109,9 +109,9 @@ const ModalOrder: React.FC<ModalOrderProps> = ({
           onChange={handleSelectedBranch}
           value={selectedBranch}
         >
-          <option className="text-sm text-gray-700 font-normal">
+          {/* <option className="text-sm text-gray-700 font-normal">
             Chọn chi nhánh
-          </option>
+          </option> */}
           {!!dataBranch &&
             dataBranch.length > 0 &&
             dataBranch.map((item, index) => (

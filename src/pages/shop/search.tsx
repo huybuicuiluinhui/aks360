@@ -283,13 +283,15 @@ const Search = () => {
                 </p>
                 <div className="flex items-center gap-1">
                   <div
-                    className="bg-[#198303]  p-[4px] rounded-full"
+                    className="bg-[#198303]  py-[3px] rounded-full flex items-center gap-1 px-2"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleDetail(item.id);
                       setIsOpen(!isOpen);
                     }}
                   >
+                    <p className="text-white text-xs">Mua</p>
+
                     <img
                       src={Images.iconPlus}
                       alt=""

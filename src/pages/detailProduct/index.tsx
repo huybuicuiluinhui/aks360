@@ -141,10 +141,23 @@ const DetailProduct = () => {
           <p className="text-lg text-[#0D7840]  font-bold mx-3  mb-3">
             {detailProduct.name}
           </p>
-          <div className="bg-[#F5F7FD]   mx-[12px] py-[6px]  rounded-md px-3">
+          <div className="bg-[#F5F7FD]   mx-[12px] py-[6px]  rounded-md px-3 flex items-center justify-between ">
             <p className="text-[#097770] text-[28px] font-semibold ">
               {formatNumber(detailProduct.price_promotional)} đ
             </p>
+            <div
+              className=" border-[#048145] rounded-[5px] border-[2px] px-4  "
+              onClick={() => {
+                setIsOpen(true);
+              }}
+            >
+              <p className="text-[#048145] font-semibold text-[13px]">
+                Thêm vào
+              </p>
+              <p className="text-[#048145] font-semibold text-[13px]">
+                Giỏ hàng
+              </p>
+            </div>
           </div>
           <div className=" bg-[#F5F7FD]    mx-[12px] py-[6px]  rounded-md  px-[12px] mt-3 ">
             <p className="text-lg text-main  font-bold">Mô tả sản phẩm</p>

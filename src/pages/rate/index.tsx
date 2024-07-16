@@ -166,9 +166,9 @@ const Rate = () => {
           onChange={handleSelectedBranhd} // Sự kiện khi giá trị được chọn thay đổi
           value={selectedBranch}
         >
-          <option className="text-sm text-[#333333] font-normal">
+          {/* <option className="text-sm text-[#333333] font-normal">
             Chọn chi nhánh
-          </option>
+          </option> */}
           {!!dataBranch &&
             dataBranch.length &&
             dataBranch?.map((item, index) => {

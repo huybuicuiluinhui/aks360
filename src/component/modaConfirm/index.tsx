@@ -25,16 +25,15 @@ const ModalConfirm = React.forwardRef(
     const exChangeVoucherMutation = useMutation({
       mutationFn: voucherApi.exChangeVoucher,
       onSuccess: (data) => {
-        if (data.data.status ) {
+        if (data.data.status) {
           setVisible(false);
-          toast.success(data.data.message||"Đổi voucher thành công!")
+          toast.success(data.data.message || "Đổi voucher thành công!");
           queryClient.invalidateQueries({
             predicate: (query) => query.queryKey[0] === "listVoucher",
           });
           queryClient.invalidateQueries({
             predicate: (query) => query.queryKey[0] === "listMyVoucherEndow",
           });
-
         } else {
         }
       },
@@ -44,18 +43,18 @@ const ModalConfirm = React.forwardRef(
     });
     const handleExChange = () => {
       exChangeVoucherMutation.mutate({
-voucher_id: props.id
+        voucher_id: props.id,
       });
     };
     return (
-        <BottomSheet isOpen={visible} setIsOpen={setVisible}>
+      <BottomSheet isOpen={visible} setIsOpen={setVisible}>
         <div className="flex flex-col  gap-[10px] pb-10">
           <img
             src={Images.logoBaTot}
             className="w-[100px] h-[100px] object-contain self-center"
           />
           <p className="text-[#09121F] text-xl font-semibold text-center">
-            Bạn cần xác nhận đổi voucher với: {props.point} điểm
+            Bạn cần xác nhận đổi voucher với: {props?.point} điểm
           </p>
           <div
             className="bg-[#01A850] rounded-[15px] py-[10px] w-[90%] self-center  mt-2"

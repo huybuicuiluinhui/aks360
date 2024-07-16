@@ -13,6 +13,7 @@ interface ModalProps {
   setSelectedBranch: React.Dispatch<React.SetStateAction<number>>;
   selectedBranch: number;
   dataBranch: IBranch[];
+  refetchData: () => void;
 }
 
 const ModalRequest = ({
@@ -22,18 +23,21 @@ const ModalRequest = ({
   setSelectedBranch,
   dataBranch,
   selectedBranch,
+  refetchData,
 }: ModalProps) => {
   const { data, refetch } = useQuery({
-    queryKey: ["checkVoucherFetch", id],
+    queryKey: ["  heckVoucherFetch", id],
     queryFn: () => voucherApi.checkVoucher(id),
   });
   const check = data?.data.code;
   const rendeemMutaion = useMutation({
     mutationFn: voucherApi.rendeem,
     onSuccess: (data) => {
+      console.log("đã vô");
       refetch();
-      toast.success(data?.data?.mesage);
+      toast.success("Yêu cầu đổi quà của bạn đã được gửi đi thành công ");
       onClose();
+      refetchData();
     },
     onError: (err) => {
       console.log("lõi", err);
@@ -42,11 +46,10 @@ const ModalRequest = ({
   const checkDoneMutation = useMutation({
     mutationFn: voucherApi.checkDone,
     onSuccess: (data) => {
-      console.log("res", data.data);
       refetch();
       onClose();
-
       toast.success(data?.data?.mesage);
+      refetchData();
     },
     onError: (err) => {
       console.log("lõi", err);
@@ -104,9 +107,6 @@ const ModalRequest = ({
           onChange={handleSelectedBranhd} // Sự kiện khi giá trị được chọn thay đổi
           value={selectedBranch}
         >
-          <option className="text-sm text-[#333333] font-normal">
-            Chọn chi nhánh
-          </option>
           {!!dataBranch &&
             dataBranch.length &&
             dataBranch?.map((item, index) => {

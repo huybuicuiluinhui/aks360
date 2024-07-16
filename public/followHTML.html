@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Follow OA</title>
+  <script src="https://sp.zalo.me/plugins/sdk.js"></script>
+  <style>
+    .zalo-follow-button-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0;
+      padding: 0;
+    }
+    .zalo-follow-only-button {
+      margin: 0;
+      padding: 0;
+      width: 100px; /* Kích thước tùy chỉnh của bạn */
+    }  .custom-zalo-follow-button {
+      background-color: blue;
+    }
+  </style>
+</head>
+<body>
+  <div class="zalo-follow-button-container">
+  <div class="zalo-follow-only-button" data-oaid="3310494139050166655"></div>
+  </div>
+  <script>
+    Zalo.Event.subscribe('followOA', function(data) {
+  if (data.status === 1) {
+    // User has followed the Zalo OA
+    window.parent.postMessage({ task: 'hideModal' }, '*');
+  }
+});
+  Zalo.Event.subscribe('followOA', function(data) {
+    if (data.status === 1) {
+      // User has followed the Zalo OA
+      window.parent.postMessage({ task: 'hideModal' }, '*');
+    }
+  });
+    window.onload = function() {
+      Zalo.init({ 
+        version: '2.0',
+        appId: "3310494139050166655", // Thay YOUR_APP_ID bằng APP_ID của bạn
+      });
+      Zalo.render('zalo-follow-button', {
+        oaid: "3310494139050166655", // Thay YOUR_OA_ID bằng OA_ID của bạn
+        isShowName: true,
+        isShowProfile: true,
+        isShowCover: true,
+      });
+    };
+  </script>
+</body>
+</html>

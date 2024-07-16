@@ -5,7 +5,6 @@ import voucherApi from "../../apis/voucher.apis";
 import { API_URL_IMAGE } from "../../utils/contanst";
 import { IMyVoucher } from "../../types/voucher.type";
 import { useNavigate } from "react-router-dom";
-import Modal from "../rate/modal";
 import ModalChooseVoucher from "../../component/modalChooseVoucher";
 import ModalRequest from "../../component/modalRequest";
 import orderApis from "../../apis/order.apis";
@@ -17,13 +16,20 @@ const ForMe = () => {
   const [selectedBranch, setSelectedBranch] = React.useState<number>(0);
   const [code, setCode] = React.useState("");
   const [id, setId] = React.useState<number>(0);
-  const { data: listMyVoucher, isFetching } = useQuery({
+  const {
+    data: listMyVoucher,
+    isFetching,
+    refetch,
+  } = useQuery({
     queryKey: ["listMyVoucherEndow"],
     queryFn: () => voucherApi.getListMyVoucher(),
   });
   const data = listMyVoucher?.data.data;
-  const handleSelectedBranhd = (event: any) => {
-    setSelectedBranch(event?.target?.value);
+  // const handleSelectedBranhd = (event: any) => {
+  //   setSelectedBranch(event?.target?.value);
+  // };
+  const refetchData = () => {
+    refetch();
   };
   const { data: listBranch } = useQuery({
     queryKey: ["listBrandFetch2"],
@@ -32,7 +38,6 @@ const ForMe = () => {
   const dataBranch = listBranch?.data.data;
   console.log(isModalOpen2);
   const ItemVoucher = ({ i }: { i: IMyVoucher }) => {
-    console.log("iiiii", i);
     return (
       <div className="w-full rounded   bg-white pr-1  mb-5 flex shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)] ">
         <div className="p-2    border-r-2 border-dashed border-[#C7C9D9]">
@@ -62,28 +67,43 @@ const ForMe = () => {
             <p className="text-sm  text-[#8F90A6]">
               Date: {i.voucher.time_end}
             </p>
-            <div
-              className="border rounded-[4px]  border-[#F3921F] px-2 py-1 "
-              onClick={() => {
-                if (i.type_voucher === 0) {
-                  // navigate("/cart");
+            {i.type_voucher === (1 || 2) ? (
+              <div
+                className="border rounded-[4px]  border-[#F3921F] px-2 py-1 "
+                onClick={() => {
                   setCode(i.voucher.voucher_code);
                   setIsModalOpen(true);
-                }
-                if (i.type_voucher === 3) {
+                }}
+              >
+                <p className="bg-gradient-to-r from-[#9C1F60] to-[#F3921F] bg-clip-text text-transparent text-sm font-medium">
+                  Sử dụng
+                </p>
+              </div>
+            ) : (
+              <div
+                className="border rounded-[4px] border-[#2268ff] px-2 py-1 "
+                onClick={() => {
                   setId(i.id);
                   setIsModalOpen2(true);
-                }
-              }}
-            >
-              <p className="bg-gradient-to-r from-[#9C1F60] to-[#F3921F] bg-clip-text text-transparent text-sm font-medium">
-                {i.type_voucher === 3
-                  ? "Nhận quà"
-                  : i.type_voucher === 0
-                  ? "Sử dụng ngay"
-                  : "Đã sử dụng"}
-              </p>
-            </div>
+                  //  else {
+                  //   if (i.type_voucher === 0) {
+                  //     // navigate("/cart");
+                  //   }
+                  //   if (i.type_voucher === 3) {
+
+                  //   }
+                  // }
+                }}
+              >
+                <p className="bg-gradient-to-r from-[#2c788f] to-[#2268ff] bg-clip-text text-transparent text-xs font-medium">
+                  {i.type_display === 0
+                    ? "Đang xử lý"
+                    : i.type_display === 1
+                    ? "Đến cửa hàng nhận quà"
+                    : "Sử dụng"}
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -117,6 +137,7 @@ const ForMe = () => {
         selectedBranch={selectedBranch}
         dataBranch={dataBranch as any}
         id={id}
+        refetchData={refetchData}
       />
     </div>
   );

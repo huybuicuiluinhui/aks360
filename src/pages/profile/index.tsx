@@ -161,7 +161,12 @@ const Profile = () => {
             return (
               <div
                 onClick={() => {
-                  navigate(item?.screen ? item?.screen : "");
+                  if (item.id === 6) {
+                    localStorage.removeItem("access_token");
+                    navigate("/");
+                  } else {
+                    navigate(item?.screen ? item?.screen : "");
+                  }
                 }}
                 className="flex items-center justify-between  py-3 border-b-[1px] border-[#F0F0F0]"
                 key={index}

@@ -40,16 +40,20 @@ const AllTab = () => {
         {!!data &&
           !!data.length &&
           data.map((i, e) => {
-            return (
-              <div key={e}>
-                <ItemVoucher
-                  i={i}
-                  setPoint={setPoint}
-                  setIdChoose={setIdChoose}
-                  refModalLogin={refModalLogin}
-                />
-              </div>
-            );
+            if (i.type === 3) {
+              return;
+            } else {
+              return (
+                <div key={e}>
+                  <ItemVoucher
+                    i={i}
+                    setPoint={setPoint}
+                    setIdChoose={setIdChoose}
+                    refModalLogin={refModalLogin}
+                  />
+                </div>
+              );
+            }
           })}
       </div>
       <div className="flex items-center justify-between">

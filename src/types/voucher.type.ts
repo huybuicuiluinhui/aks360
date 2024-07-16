@@ -21,6 +21,7 @@ export interface IMyVoucher {
   id: number;
   user_id: number;
   type_voucher: number;
+  type_display: number;
   voucher_id: number;
   status: number;
   created_at: string;
