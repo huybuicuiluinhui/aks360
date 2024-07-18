@@ -36,8 +36,8 @@ const ForMe = () => {
     queryFn: () => orderApis.getListBranch(),
   });
   const dataBranch = listBranch?.data.data;
-  console.log(isModalOpen2);
   const ItemVoucher = ({ i }: { i: IMyVoucher }) => {
+    console.log("i", i);
     return (
       <div className="w-full rounded   bg-white pr-1  mb-5 flex shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)] ">
         <div className="p-2    border-r-2 border-dashed border-[#C7C9D9]">
@@ -67,7 +67,7 @@ const ForMe = () => {
             <p className="text-sm  text-[#8F90A6]">
               Date: {i.voucher.time_end}
             </p>
-            {i.type_voucher === (1 || 2) ? (
+            {i.type_voucher === 1 || i.type_voucher === 2 ? (
               <div
                 className="border rounded-[4px]  border-[#F3921F] px-2 py-1 "
                 onClick={() => {
